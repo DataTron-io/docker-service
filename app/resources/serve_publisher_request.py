@@ -4,12 +4,8 @@ from flask_restful import Resource
 from flask import request, make_response
 # from app.ml_model.publisher_model import PublisherModel
 from app.ml_model import predictor
-from app.monitoring import shiva_statsd
 from app.settings import settings
 from datatron.common.ml_parser.loader.constant import EXCEPTIONS_HTTP_STATUS_CODE
-
-
-statsd_client = shiva_statsd.get_client()
 
 # TODO: Refactor statsd code as decorator to remove redundancy
 
