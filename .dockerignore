@@ -1,0 +1,11 @@
+.gitignore
+venv/
+*.pyc
+.idea/
+*.log
+build/
+.DS_Store
+*.git
+*.git/
+tmp/
+env/
