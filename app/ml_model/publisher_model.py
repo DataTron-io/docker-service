@@ -20,6 +20,6 @@ class PublisherModelPredictor(object):
     def predict(self, input_features):
         #Prediction code here
 
-        return
+        return 0.5
 
 
