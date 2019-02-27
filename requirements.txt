@@ -13,3 +13,4 @@ requests==2.18.2
 statsd==3.2.1
 kazoo==2.4.0
 keras==2.2.4
+tensorflow==1.9.0
