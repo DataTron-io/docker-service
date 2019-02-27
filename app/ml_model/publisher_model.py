@@ -18,11 +18,13 @@ class PublisherModelPredictor(object):
 
     def predict(self, input_features):
         # Model reconstruction from JSON file
-        with open('model.json', 'r') as f:
+        with open('app/ml_model/model.json', 'r') as f:
             model = model_from_json(f.read())
 
         # Load weights into the new model
-        model.load_weights('model.h5')
-        return model.predict(input_features)
+        model.load_weights('app/ml_model/model.h5')
+        print(input_features)
+        print(type(input_features))
+        return model.predict([[input_features]])
 
 
