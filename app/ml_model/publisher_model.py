@@ -25,6 +25,6 @@ class PublisherModelPredictor(object):
         model.load_weights('app/ml_model/model.h5')
         print(input_features)
         print(type(input_features))
-        return model.predict([[input_features]])
+        return model.predict([[input_features]]).tolist()
 
 
