@@ -1,8 +1,8 @@
-FROM aksyjain/base-py3:latest
+FROM centos:7.4.1708
 
 MAINTAINER Datatron "team@datatron.io"
 
-ENV APP_DIR=/root/publisher-flask-service
+ENV APP_DIR=/root/docker-service
 
 COPY . ${APP_DIR}
 
@@ -12,14 +12,10 @@ ENV PYTHONPATH "${PYTHONPATH}:${APP_DIR}"
 
 ENV DATATRON_ROOT_LOCATION "${APP_DIR}"
 
-RUN apt-get -y update \
-    && apt-get install openjdk-8-jre-headless -y \
-    && python -m pip install -U pip \
-    && python -m pip install -r ${APP_DIR}/requirements.txt \
-    && python -m pip install -U datatron.common.discovery --index-url=http://datatron:rTW0z2NRE22icuyU@13.77.168.70:4039/datatron/pypi/+simple --trusted-host 13.77.168.70 \
-    && python -m pip install -U datatron.common.transfer --index-url=http://datatron:rTW0z2NRE22icuyU@13.77.168.70:4039/datatron/pypi/+simple --trusted-host 13.77.168.70 \
-    && python -m pip install -U datatron.common.ml_parser --index-url=http://datatron:rTW0z2NRE22icuyU@13.77.168.70:4039/datatron/pypi/+simple --trusted-host 13.77.168.70
+RUN yum -y update && yum install -y yum-utils && yum groupinstall -y development \
+    && yum install -y  https://centos7.iuscommunity.org/ius-release.rpm \
+    && yum install -y python36u python36u-pip python36u-devel \
+    && yum install -y java-1.8.0-openjdk-headless \
+    && python3.6 -m pip install -r ${APP_DIR}/requirements.txt
 
 EXPOSE 80
-
-CMD [ "gunicorn", "-c", "kubernetes_gunicorn.conf", "wsgi:app", "--bind", ":80" ]

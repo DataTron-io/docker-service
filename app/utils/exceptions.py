@@ -1,2 +1,0 @@
-class ModelLoadError(Exception):
-    pass

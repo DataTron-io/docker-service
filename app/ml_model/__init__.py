@@ -1,3 +1,3 @@
-from .publisher_model import PublisherModelPredictor
+from .model_predictor import ModelPredictor
 
-predictor = PublisherModelPredictor()
+predictor = ModelPredictor()
