@@ -13,3 +13,5 @@ kazoo==2.4.0
 hdfs==2.1.0
 keras==2.2.4
 tensorflow==1.13.2
+xgboost==0.81
+scikit-learn==0.20.3
