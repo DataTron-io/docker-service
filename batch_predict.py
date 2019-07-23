@@ -130,7 +130,10 @@ class BatchPredictionJob:
 
             logging.info('Batch Processing succeeded for filename: {} in {} duration'
                          .format(input_filename, self.calculate_duration(file_process_start)))
+
+            os.environ['BATCH_RESULT'] = 'SUCCESS'
         except Exception as e:
+            os.environ['BATCH_RESULT'] = 'FAILED'
             logging.error('Batch Processing for batch id {} failed due to error: {}'.format(self.batch_id, str(e)))
 
 
