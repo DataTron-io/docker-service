@@ -104,7 +104,7 @@ class BatchPredictionJob:
                              .format(model_key, self.calculate_duration(model_predict_start)))
 
                 predict_merge_start = time.time()
-                predict_df = predict_df.add_prefix(model_key)
+                predict_df = predict_df.add_prefix(model_key + '__')
                 each_chunk = each_chunk.merge(predict_df, how='outer', left_index=True, right_index=True)
 
                 logging.info('Finished merging the prediction result with existing base frame in: {}'
@@ -131,10 +131,9 @@ class BatchPredictionJob:
             logging.info('Batch Processing succeeded for filename: {} in {} duration'
                          .format(input_filename, self.calculate_duration(file_process_start)))
 
-            os.environ['BATCH_RESULT'] = 'SUCCESS'
         except Exception as e:
-            os.environ['BATCH_RESULT'] = 'FAILED'
             logging.error('Batch Processing for batch id {} failed due to error: {}'.format(self.batch_id, str(e)))
+            raise
 
 
 if __name__ == '__main__':

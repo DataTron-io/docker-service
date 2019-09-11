@@ -1,7 +1,7 @@
 import json
 import logging
-from keras import backend as K
-from keras.models import model_from_json
+import pickle
+import pandas as pd
 
 
 class ModelPredictor(object):
@@ -16,17 +16,9 @@ class ModelPredictor(object):
         :return: single prediction
         """
 
-        K.clear_session()
-
-        # Example of predict function using Keras model
-
-        # Model reconstruction from JSON file
-        with open('models/model.json', 'r') as f:
-            model = model_from_json(f.read())
-
-        # Load weights into the new model
-        model.load_weights('models/model.h5')
-        return model.predict(x).tolist()
+        model = pickle.load(open("models/xgboost_birth_model.pkl", "rb"))
+        x= pd.DataFrame(x, columns = self.feature_list())
+        return model.predict(x)
 
     def predict_proba(self, x):
         """
@@ -45,7 +37,5 @@ class ModelPredictor(object):
         :param: None
         :return: A list of features
         """
-        return ['Pregnancies', 'Glucose', 'BloodPressure',
-                'SkinThickness', 'Insulin', 'BMI',
-                'DiabetesPedigreeFunction', 'Age']
+        return ['Black','Married','Boy','MomAge','MomSmoke','CigsPerDay','MomWtGain','Visit','MomEdLevel']
 
