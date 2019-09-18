@@ -37,5 +37,5 @@ class ModelPredictor(object):
         :param: None
         :return: A list of features
         """
-        return ['Black','Married','Boy','MomAge','MomSmoke','CigsPerDay','MomWtGain','Visit','MomEdLevel']
+        return ['v1','v2','v3','v4','v5','v6','v7','v8']
 
