@@ -17,7 +17,7 @@ class ModelPredictor(object):
         """
 
         model = pickle.load(open("models/xgboost_diabetes_model.pkl", "rb"))
-        x= pd.DataFrame(x, columns = self.feature_list())
+        #x= pd.DataFrame, columns = self.feature_list())
         return model.predict(x)
 
     def predict_proba(self, x):
