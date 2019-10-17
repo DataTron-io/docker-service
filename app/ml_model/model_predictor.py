@@ -2,7 +2,8 @@ import json
 import logging
 import pickle
 import pandas as pd
-
+from keras.models import load_model
+import numpy as np
 
 class ModelPredictor(object):
     def __init__(self):
@@ -16,9 +17,10 @@ class ModelPredictor(object):
         :return: single prediction
         """
 
-        model = pickle.load(open("models/xgboost_birth_model.pkl", "rb"))
-        x= pd.DataFrame(x, columns = self.feature_list())
-        return model.predict(x)
+        model = load_model('models/keras-fraud-model.h5')
+        result=np.round(model.predict(x))
+        prediction=np.transpose(results)[0]
+        return prediction
 
     def predict_proba(self, x):
         """
@@ -37,5 +39,5 @@ class ModelPredictor(object):
         :param: None
         :return: A list of features
         """
-        return ['Black','Married','Boy','MomAge','MomSmoke','CigsPerDay','MomWtGain','Visit','MomEdLevel']
+        return ['V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11','V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21','V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount']
 
