@@ -26,16 +26,16 @@ class ModelPredictor(object):
                 x = F.relu(self.fc1(x))
                 x = self.fc2(x)
                 return torch.sigmoid(x)
-		net = Net()
-		#read the model
-		model = torch.load("models/Torch_Model.pt") 
+        net = Net()
+        #read the model
+        model = torch.load("models/Torch_Model.pt") 
         x= pd.DataFrame(x, columns = self.feature_list()).values()
         x=torch.tensor(x.astype(np.float32))
-		#Make predictions
-		out = model(row)
-		_,predicted = torch.max(out.data,1)
-		#convert prediction from tensor to numpy array
-		prediction=predicted.numpy()
+        #Make predictions
+        out = model(row)
+        _,predicted = torch.max(out.data,1)
+        #convert prediction from tensor to numpy array
+        prediction=predicted.numpy()
         return prediction
 
     def predict_proba(self, x):
