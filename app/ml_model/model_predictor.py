@@ -17,15 +17,15 @@ class ModelPredictor(object):
         :return: single prediction
         """
 		#define initial structure
-		class Net(nn.Module):
-		    def __init__(self):
-		        super(Net, self).__init__()
-		        self.fc1 = nn.Linear(29, 6)
-		        self.fc2 = nn.Linear(6, 2)
-		    def forward(self, x):
-		        x = F.relu(self.fc1(x))
-		        x = self.fc2(x)
-		        return torch.sigmoid(x)
+        class Net(nn.Module):
+            def __init__(self):
+                super(Net, self).__init__()
+                self.fc1 = nn.Linear(29, 6)
+                self.fc2 = nn.Linear(6, 2)
+            def forward(self, x):
+                x = F.relu(self.fc1(x))
+                x = self.fc2(x)
+                return torch.sigmoid(x)
 		net = Net()
 		#read the model
 		model = torch.load("models/Torch_Model.pt") 
