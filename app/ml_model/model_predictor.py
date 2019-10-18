@@ -18,6 +18,7 @@ class ModelPredictor(object):
         """
 
         model = load_model('models/keras-fraud-model.h5')
+        x= pd.DataFrame(x, columns = self.feature_list())
         results=np.round(model.predict(x))
         prediction=np.transpose(results)[0] #--
         return prediction
