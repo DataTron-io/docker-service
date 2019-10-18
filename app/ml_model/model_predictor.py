@@ -16,7 +16,7 @@ class ModelPredictor(object):
         :param: x : A list or list of list of input vector
         :return: single prediction
         """
-		#define initial structure
+        #define initial structure
         class Net(nn.Module):
             def __init__(self):
                 super(Net, self).__init__()
