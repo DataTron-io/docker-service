@@ -18,8 +18,8 @@ class ModelPredictor(object):
         """
 
         model = load_model('models/keras-fraud-model.h5')
-        result=np.round(model.predict(x))
-        prediction=np.transpose(results)[0]
+        results=np.round(model.predict(x))
+        prediction=np.transpose(results)[0] #--
         return prediction
 
     def predict_proba(self, x):
