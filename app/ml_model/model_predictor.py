@@ -16,11 +16,26 @@ class ModelPredictor(object):
         :param: x : A list or list of list of input vector
         :return: single prediction
         """
-
-        model = load_model('models/keras-fraud-model.h5')
-        x= pd.DataFrame(x, columns = self.feature_list())
-        results=np.round(model.predict(x))
-        prediction=np.transpose(results)[0] #--
+		#define initial structure
+		class Net(nn.Module):
+		    def __init__(self):
+		        super(Net, self).__init__()
+		        self.fc1 = nn.Linear(29, 6)
+		        self.fc2 = nn.Linear(6, 2)
+		    def forward(self, x):
+		        x = F.relu(self.fc1(x))
+		        x = self.fc2(x)
+		        return torch.sigmoid(x)
+		net = Net()
+		#read the model
+		model = torch.load("models/Torch_Model.pt") 
+        x= pd.DataFrame(x, columns = self.feature_list()).values()
+        x=torch.tensor(x.astype(np.float32))
+		#Make predictions
+		out = model(row)
+		_,predicted = torch.max(out.data,1)
+		#convert prediction from tensor to numpy array
+		prediction=predicted.numpy()
         return prediction
 
     def predict_proba(self, x):
