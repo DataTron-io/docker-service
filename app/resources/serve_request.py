@@ -7,6 +7,8 @@ from app.settings import settings
 from app.ml_model import predictor
 
 
+
+
 class ServePredictRequest(Resource):
     def post(self):
         request_data = request.get_json()

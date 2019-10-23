@@ -2,13 +2,14 @@ import json
 import logging
 import pickle
 import pandas as pd
-from keras.models import load_model
+import torch.nn as nn
+import torch
 import numpy as np
+
 
 class ModelPredictor(object):
     def __init__(self):
         pass
-
     def predict(self, x):
         """
         Required for online and offline predictions
@@ -16,23 +17,14 @@ class ModelPredictor(object):
         :param: x : A list or list of list of input vector
         :return: single prediction
         """
-        #define initial structure
-        class Net(nn.Module):
-            def __init__(self):
-                super(Net, self).__init__()
-                self.fc1 = nn.Linear(29, 6)
-                self.fc2 = nn.Linear(6, 2)
-            def forward(self, x):
-                x = F.relu(self.fc1(x))
-                x = self.fc2(x)
-                return torch.sigmoid(x)
-        net = Net()
+        import TorchStructure
+        net = TorchStructure.Net()
         #read the model
         model = torch.load("models/Torch_Model.pt") 
-        x= pd.DataFrame(x, columns = self.feature_list()).values()
+        x= pd.DataFrame(x, columns = self.feature_list()).values
         x=torch.tensor(x.astype(np.float32))
         #Make predictions
-        out = model(row)
+        out = model(x)
         _,predicted = torch.max(out.data,1)
         #convert prediction from tensor to numpy array
         prediction=predicted.numpy()
