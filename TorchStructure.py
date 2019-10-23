@@ -1,5 +1,3 @@
-import torch.nn as nn
-import torch
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
@@ -26,7 +24,7 @@ class Net(nn.Module):
         x = self.fc2(x)
         return torch.sigmoid(x)
 
-
+"""
 def save():
 	#separate X and Y
 	X=data.iloc[:,0:-1].values
@@ -81,3 +79,4 @@ def save():
 
 	#Save Model
 	torch.save(net, "../SavedModels/Torch_Model.pt")
+"""
