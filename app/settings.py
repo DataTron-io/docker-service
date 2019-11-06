@@ -17,7 +17,7 @@ class BaseConfig(object):
     DATATRON_ROOT_LOCATION = str_env('DATATRON_ROOT_LOCATION', '/home/datatron')
     PUBLISHER_SLUG = str_env('PUBLISHER_SLUG', 'dt-publisher-sample')
     MODEL_LEARN_TYPE = str_env('MODEL_LEARN_TYPE', 'model_learn_type_sample')
-    MODEL_NAME = str_env('MODEL_NAME', 'dnn_model')
+    MODEL_NAME = str_env('MODEL_NAME', 'dnn_model_6variables')
     MODEL_VERSION = str_env('MODEL_VERSION', 'model_version_sample')
     MODEL_VERSION_SLUG = str_env('MODEL_VERSION_SLUG', 'model_version_slug_sample')
     MODEL_SLUG = str_env('MODEL_SLUG', 'model_slug_sample')
@@ -27,7 +27,7 @@ class BaseConfig(object):
     BATCH_ID = str_env('BATCH_ID', 'batch_id_sample')
     REMOTE_INPUT_FILEPATH = str_env('REMOTE_INPUT_FILEPATH', '/home/datatron/shiva')
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
-    LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
+    LEARN_TYPE = str_env('LEARN_TYPE', 'binary-classification')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
     DELIMITER = str_env('DELIMITER', ',')
 
