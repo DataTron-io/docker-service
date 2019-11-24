@@ -6,6 +6,10 @@ from flask import request, make_response
 from app.settings import settings
 from app.ml_model import predictor
 
+def set_default(obj):
+    if isinstance(obj, set):
+        return list(obj)
+    raise TypeError
 
 class ServePredictRequest(Resource):
     def post(self):
@@ -28,9 +32,10 @@ class ServePredictRequest(Resource):
 
             x_dict = request_data['data']
             feature_list = predictor.feature_list()
-            x = np.array([[x_dict[feature_name] for feature_name in feature_list]])
-            y = predictor.predict(x)
-            result['prediction'] = {'outputs': y[0].item()}
+            x = np.array([[x_dict[feature_name] for feature_name in feature_list]])[0].tolist()
+            y = predictor.bias_detection(*x)
+            #result['prediction'] = {'outputs': y[0].item()}
+            result['prediction'] = y
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
@@ -45,7 +50,7 @@ class ServePredictRequest(Resource):
             result['status']["status_code"] = status_code
             result['status']["status_msg"] = status_msg
 
-        return make_response(json.dumps(result), status_code)
+        return make_response(json.dumps(result,default=set_default), status_code)
 
 
 class ServePredictProbaRequest(Resource):
@@ -75,4 +80,4 @@ class ServePredictProbaRequest(Resource):
             result['status']["status_code"] = status_code
             result['status']["status_msg"] = status_msg
 
-        return make_response(json.dumps(result), status_code)
+        return make_response(json.dumps(result,default=set_default), status_code)
