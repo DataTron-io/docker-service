@@ -26,11 +26,9 @@ class ServePredictRequest(Resource):
                 'model_version_slug': settings.MODEL_VERSION_SLUG
             }
 
-            x_dict = request_data['data']
-            feature_list = predictor.feature_list()
-            x = np.array([[x_dict[feature_name] for feature_name in feature_list]])
-            y = predictor.predict(x)
-            result['prediction'] = {'outputs': y[0].item()}
+            input_data = request_data['data']
+            output_data = predictor.predict(input_data)
+            result['prediction'] = output_data
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
@@ -56,11 +54,14 @@ class ServePredictProbaRequest(Resource):
 
         result = dict(predict_proba={}, status={})
 
+        if not settings.PROBA_ENDPOINT:
+            result['status']["status_code"] = 500
+            result['status']["status_msg"] = "MissingProbaEndpointError"
+            return make_response(json.dumps(result), 500)
         try:
-            x_dict = request_data['data']
-            feature_list = predictor.feature_list()
-            x = np.array([[x_dict[feature_name] for feature_name in feature_list]])
-            result['predict_proba'] = predictor.predict_proba(x)
+            input_data = request_data['data']
+            output_data = predictor.predict(input_data, proba=True)
+            result['predict_proba'] = output_data
 
             logging.info('Successfully fetched the model predict_proba result')
             status_msg = "PublisherPredictionProbaSuccess"

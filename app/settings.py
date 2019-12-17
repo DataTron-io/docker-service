@@ -30,6 +30,9 @@ class BaseConfig(object):
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
     DELIMITER = str_env('DELIMITER', ',')
+    PREDICT_ENDPOINT = str_env('PREDICT_ENDPOINT', '/predict')
+    PROBA_ENDPOINT = str_env('PROBA_ENDPOINT', '')
+    PORT = str_env('PORT', '90')
 
 
 class DevConfig(BaseConfig):
