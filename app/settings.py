@@ -32,7 +32,7 @@ class BaseConfig(object):
     DELIMITER = str_env('DELIMITER', ',')
     PREDICT_ENDPOINT = str_env('PREDICT_ENDPOINT', '/predict')
     PROBA_ENDPOINT = str_env('PROBA_ENDPOINT', '')
-    PORT = int_env('PORT', 90)
+    PORT = str_env('PORT', '90')
 
 
 class DevConfig(BaseConfig):

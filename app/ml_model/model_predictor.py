@@ -16,5 +16,5 @@ class ModelPredictor(object):
         port = settings.PORT
         if endpoint[0] != '/':
             endpoint = '/' + endpoint
-        response = requests.post("localhost:" + str(port) + endpoint, json=json_data)
+        response = requests.post("localhost:" + port + endpoint, json=json_data)
         return response
