@@ -29,7 +29,6 @@ class ServePredictRequest(Resource):
             input_data = request_data['data']
             output_data = predictor.predict(input_data)
             result['prediction'] = output_data.json()
-            logging.info("result = {}".format(result))
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
@@ -79,4 +78,6 @@ class ServePredictProbaRequest(Resource):
             result['status']["status_code"] = status_code
             result['status']["status_msg"] = status_msg
 
-        return make_response(json.dumps(result), status_code)
+        response = make_response(json.dumps(result), status_code)
+        response.mimetype = 'application/json'
+        return response
