@@ -28,8 +28,8 @@ class ServePredictRequest(Resource):
 
             input_data = request_data['data']
             output_data = predictor.predict(input_data)
-            logging.info("output_data type = {}".format(type(output_data)))
-            result['prediction'] = json.loads(output_data)
+            result['prediction'] = output_data.json()
+            logging.info("result = {}".format(result))
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
@@ -64,7 +64,7 @@ class ServePredictProbaRequest(Resource):
         try:
             input_data = request_data['data']
             output_data = predictor.predict(input_data, proba=True)
-            result['predict_proba'] = json.loads(output_data)
+            result['predict_proba'] = output_data.json()
 
             logging.info('Successfully fetched the model predict_proba result')
             status_msg = "PublisherPredictionProbaSuccess"
