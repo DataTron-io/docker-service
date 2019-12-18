@@ -2,7 +2,7 @@ import json
 import logging
 import numpy as np
 from flask_restful import Resource
-from flask import request, make_response, jsonify
+from flask import request, make_response
 from app.settings import settings
 from app.ml_model import predictor
 
@@ -28,7 +28,8 @@ class ServePredictRequest(Resource):
 
             input_data = request_data['data']
             output_data = predictor.predict(input_data)
-            result['prediction'] = output_data
+            logging.info("output_data type = {}".format(type(output_data)))
+            result['prediction'] = json.loads(output_data)
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
@@ -43,7 +44,9 @@ class ServePredictRequest(Resource):
             result['status']["status_code"] = status_code
             result['status']["status_msg"] = status_msg
 
-        return make_response(jsonify(result), status_code)
+        response = make_response(json.dumps(result), status_code)
+        response.mimetype = 'application/json'
+        return response
 
 
 class ServePredictProbaRequest(Resource):
@@ -61,7 +64,7 @@ class ServePredictProbaRequest(Resource):
         try:
             input_data = request_data['data']
             output_data = predictor.predict(input_data, proba=True)
-            result['predict_proba'] = output_data
+            result['predict_proba'] = json.loads(output_data)
 
             logging.info('Successfully fetched the model predict_proba result')
             status_msg = "PublisherPredictionProbaSuccess"
@@ -76,4 +79,4 @@ class ServePredictProbaRequest(Resource):
             result['status']["status_code"] = status_code
             result['status']["status_msg"] = status_msg
 
-        return make_response(jsonify(result), status_code)
+        return make_response(json.dumps(result), status_code)
