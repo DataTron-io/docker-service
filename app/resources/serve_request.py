@@ -2,7 +2,7 @@ import json
 import logging
 import numpy as np
 from flask_restful import Resource
-from flask import request, make_response
+from flask import request, make_response, jsonify
 from app.settings import settings
 from app.ml_model import predictor
 
@@ -43,7 +43,7 @@ class ServePredictRequest(Resource):
             result['status']["status_code"] = status_code
             result['status']["status_msg"] = status_msg
 
-        return make_response(json.dumps(result), status_code)
+        return make_response(jsonify(result), status_code)
 
 
 class ServePredictProbaRequest(Resource):
@@ -76,4 +76,4 @@ class ServePredictProbaRequest(Resource):
             result['status']["status_code"] = status_code
             result['status']["status_msg"] = status_msg
 
-        return make_response(json.dumps(result), status_code)
+        return make_response(jsonify(result), status_code)
