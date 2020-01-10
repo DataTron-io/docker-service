@@ -30,7 +30,11 @@ class ServePredictRequest(Resource):
             feature_list = predictor.feature_list()
             x = np.array([[x_dict[feature_name] for feature_name in feature_list]])
             y = predictor.predict(x)
-            result['prediction'] = {'outputs': y[0].item()}
+            AuxResults=y.iloc[0].to_dict()
+            for item in AuxResults:
+                AuxResults[item]=str(AuxResults[item])
+            result['prediction_meta'].update( AuxResults )
+            result['prediction'] = {'outputs': int(y["MODEL_CLASS"].values[0])}
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"

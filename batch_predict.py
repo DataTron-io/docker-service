@@ -97,6 +97,7 @@ class BatchPredictionJob:
                 feature_list = predictor.feature_list()
                 x_list = each_chunk[feature_list].values
                 output = predictor.predict(x_list)
+                output=output["MODEL_CLASS"].values
                 predict_df = pd.DataFrame(output, columns=['outputs'])
                 predict_df.index = each_chunk.index.values
 
