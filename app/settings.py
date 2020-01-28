@@ -32,7 +32,9 @@ class BaseConfig(object):
     DELIMITER = str_env('DELIMITER', ',')
     PREDICT_ENDPOINT = str_env('PREDICT_ENDPOINT', '/predict')
     PROBA_ENDPOINT = str_env('PROBA_ENDPOINT', '')
-    PORT = str_env('PORT', '90')
+    APIPORT = str_env('PORT', '90')
+    DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'k8s')
+    SHIVA_ZOOKEEPER_HOSTS = str_env('SHIVA_ZOOKEEPER_HOSTS', 'datatron-zookeeper-svc:2181')
 
 
 class DevConfig(BaseConfig):
@@ -55,4 +57,3 @@ elif APPLICATION_ENV == 'staging':
     settings = StagingConfig()
 elif APPLICATION_ENV == 'production':
     settings = ProdConfig()
-

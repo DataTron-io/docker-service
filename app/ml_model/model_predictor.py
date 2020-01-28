@@ -36,7 +36,7 @@ class ModelPredictor(object):
         logging.info('Validated Features: {}'.format(validated_features))
 
         endpoint = settings.PROBA_ENDPOINT if proba else settings.PREDICT_ENDPOINT
-        port = settings.PORT
+        port = settings.APIPORT
         if endpoint[0] != '/':
             endpoint = '/' + endpoint
         response = requests.post("http://localhost:" + port + endpoint, json=validated_features)
