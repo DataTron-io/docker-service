@@ -4,6 +4,12 @@ MAINTAINER Datatron "team@datatron.io"
 
 ENV APP_DIR=/root/docker-service
 
+ARG DEVPI_SERVER_ACCESS
+
+ARG DEVPI_SERVER_IP
+
+ARG DEVPI_SERVER_PORT
+
 COPY . ${APP_DIR}
 
 WORKDIR ${APP_DIR}
