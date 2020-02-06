@@ -1,4 +1,4 @@
-from app.utils.settings import str_env, int_env
+from app.utils.settings import str_env, int_env, bool_env
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -30,6 +30,16 @@ class BaseConfig(object):
     LEARN_TYPE = str_env('LEARN_TYPE', 'classification')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
     DELIMITER = str_env('DELIMITER', ',')
+
+    USE_WEBHDFS = bool_env('USE_WEBHDFS', True)
+    USE_KERBEROS = bool_env('USE_KERBEROS', False)
+
+    KEYTAB_LOCATION = str_env('KEYTAB_LOCATION', '/home/datatron/shiva')
+    KERBEROS_USER = str_env('KERBEROS_USER', '/home/datatron/shiva')
+
+    JAVA_GATEWAY_JAR_LOCATION = os.path.dirname(os.path.abspath(__file__)) \
+                                + '/../java-gateway-1.0-SNAPSHOT-jar-with-dependencies.jar'
+    JAVA_GATEWAY_PORT = 25333
 
 
 class DevConfig(BaseConfig):
