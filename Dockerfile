@@ -17,5 +17,7 @@ RUN yum -y update && yum install -y yum-utils && yum groupinstall -y development
     && yum install -y python36u python36u-pip python36u-devel \
     && yum install -y java-1.8.0-openjdk-headless \
     && python3.6 -m pip install -r ${APP_DIR}/requirements.txt
+run yum install openblas-devel.x86_64 -y
+run pip3 install GitPython==2.1.15
 
 EXPOSE 80
