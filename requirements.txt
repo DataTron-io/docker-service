@@ -13,7 +13,7 @@ pandas==0.24.2
 kazoo==2.4.0
 hdfs==2.1.0
 scikit-learn==0.21.2
-
+attrs==19.1.0
 pycryptodome==3.6.6
 setproctitle==1.1.10
 filelock==3.0.12
