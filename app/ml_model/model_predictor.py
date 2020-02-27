@@ -1,8 +1,14 @@
 import json
 import logging
 import pickle
-import pandas as pd
 
+import os
+os.environ["DRIVERLESS_AI_LICENSE_KEY"] = """czZvHO12DaielA8Bbv0KzZaYoeteUNaWxqHhzKGI67Uy7GzUpWf5ymGaBCqSrKq3SIfocIeeYjp7HHmW6D8GrQo6wCq332C0maCvQf269Qqodr_racx7ttX9S23v3IeHrIe1ZT8jGupEfEH5vOl7oJptACTU_ebTltVV7ywbUI3CDixWS2nrDmz1hckGX5QMxG8CmdqLCEj8HsMnkOYBXLki1gK2PDnzXtm7Wp060YIcRZfljEKtFEGyHkF7ANTtgaV2msJo5i8jURO7VerOovmZB5w-0N9dVUx3clWqnb2_Q-2d9O1bFAHGQ-VzHjsAF152u5MUXMwyOS7MeQph0mxpY2Vuc2VfdmVyc2lvbjoxCnNlcmlhbF9udW1iZXI6NDMxMDUKbGljZW5zZWVfb3JnYW5pemF0aW9uOlppcHdpcmUKbGljZW5zZWVfZW1haWw6eXdiMTkxNTRAdW5pLnN0cmF0aC5hYy51awpsaWNlbnNlZV91c2VyX2lkOjQzMTA1CmlzX2gyb19pbnRlcm5hbF91c2U6ZmFsc2UKY3JlYXRlZF9ieV9lbWFpbDprYXlAaDJvLmFpCmNyZWF0aW9uX2RhdGU6MjAyMC8wMi8yNgpwcm9kdWN0OkRyaXZlcmxlc3NBSQpsaWNlbnNlX3R5cGU6dHJpYWwKZXhwaXJhdGlvbl9kYXRlOjIwMjAvMDMvMTgK"""
+import pandas as pd
+import numpy as np
+from numpy import nan
+from scipy.special._ufuncs import expit
+from scoring_h2oai_experiment_47323476_e6fa_11e9_afcc_0242ac110002 import Scorer
 
 class ModelPredictor(object):
     """
@@ -31,6 +37,13 @@ class ModelPredictor(object):
 
         Note: Make sure all the needed packages are mentioned in requirements.txt
         """
+        print ("x1",x)
+        print ("x2",x[0])
+        scorer = Scorer()
+
+        #y = scorer.score(['5','9',  '2010-02-05',  '1.0' ]);
+        y = scorer.score(x[0]);
+        return (y)
 
         pass
 
@@ -51,5 +64,5 @@ class ModelPredictor(object):
         :param: None
         :return: A list of features
         """
-        return ['Black','Married','Boy','MomAge','MomSmoke','CigsPerDay','MomWtGain','Visit','MomEdLevel']
+        return ['Store','Dept','Date','IsHoliday']
 

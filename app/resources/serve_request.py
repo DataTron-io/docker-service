@@ -7,6 +7,7 @@ from app.settings import settings
 from app.ml_model import predictor
 
 
+
 class ServePredictRequest(Resource):
     def post(self):
         request_data = request.get_json()
@@ -30,7 +31,7 @@ class ServePredictRequest(Resource):
             feature_list = predictor.feature_list()
             x = np.array([[x_dict[feature_name] for feature_name in feature_list]])
             y = predictor.predict(x)
-            result['prediction'] = {'outputs': y[0].item()}
+            result['prediction'] = {'outputs': y[0]}
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
