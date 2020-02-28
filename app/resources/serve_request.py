@@ -18,7 +18,7 @@ class ServePredictRequest(Resource):
         try:
             result['prediction_meta'] = {
                 'model_type': settings.MODEL_TYPE,
-                'model_learn_type': settings.LEARN_TYPE,
+                'model_learn_type': settings.MODEL_LEARN_TYPE,
                 'model_version': settings.MODEL_VERSION,
                 'model_name': settings.MODEL_NAME,
                 'model_slug': settings.MODEL_SLUG,
