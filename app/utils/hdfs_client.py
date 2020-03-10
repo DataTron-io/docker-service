@@ -1,7 +1,7 @@
 import logging
-from app.utils.settings import JAVA_GATEWAY_JAR_LOCATION, JAVA_GATEWAY_PORT, \
-    USE_KERBEROS, KERBEROS_USER, KEYTAB_LOCATION
+from app.settings import settings
 from py4j.java_gateway import JavaGateway
+import os
 
 
 class Gateway:
@@ -10,10 +10,12 @@ class Gateway:
     def __init__(self):
         if Gateway.__instance is None:
             self.gateway = JavaGateway()
-            self.gateway.launch_gateway(classpath=JAVA_GATEWAY_JAR_LOCATION,die_on_exit=True,port=JAVA_GATEWAY_PORT)
+            self.gateway.launch_gateway(classpath=settings.JAVA_GATEWAY_JAR_LOCATION,
+                                        die_on_exit=True,
+                                        port=settings.JAVA_GATEWAY_PORT)
 
             logging.info('Successfully launched java gateway for classpath {} at port {}.'
-                         .format(JAVA_GATEWAY_JAR_LOCATION, JAVA_GATEWAY_PORT))
+                         .format(settings.JAVA_GATEWAY_JAR_LOCATION, settings.JAVA_GATEWAY_PORT))
 
             self.uri = self.gateway.jvm.java.net.URI
             self.path = self.gateway.jvm.org.apache.hadoop.fs.Path
@@ -39,16 +41,23 @@ class InsecureClient:
             configuration = gateway_instance.configuration
             logging.info('Starting HDFS session for {}'.format(url))
 
-            if USE_KERBEROS:
+            if settings.USE_KERBEROS:
                 logging.info('Using kerberos for hdfs authentication')
                 configuration.set("fs.defaultFS", url)
                 configuration.set("hadoop.security.authentication", "kerberos")
                 # configuration.set("hadoop.rpc.protection", "privacy")
+
+                logging.info('Adding xml resources at path {}'.format(settings.HADOOP_XML_FILE_PATH + "/" + "core-site.xml"))
+                configuration.addResource(gateway_instance.path(settings.HADOOP_XML_FILE_PATH + "/" + "core-site.xml"))
+                configuration.addResource(gateway_instance.path(settings.HADOOP_XML_FILE_PATH + "/" + "hdfs-site.xml"))
+                configuration.addResource(gateway_instance.path(settings.HADOOP_XML_FILE_PATH + "/" + "mapred-site.xml"))
+                configuration.addResource(gateway_instance.path(settings.HADOOP_XML_FILE_PATH + "/" + "yarn-site.xml"))
+
                 provider_array = gateway_instance.gateway.new_array(gateway_instance.gateway.jvm.org.apache.hadoop.security.SecurityInfo, 1)
                 provider_array[0] = gateway_instance.gateway.jvm.org.apache.hadoop.security.AnnotatedSecurityInfo()
                 gateway_instance.gateway.jvm.org.apache.hadoop.security.SecurityUtil.setSecurityInfoProviders(provider_array)
                 gateway_instance.gateway.jvm.org.apache.hadoop.security.UserGroupInformation.setConfiguration(configuration)
-                gateway_instance.gateway.jvm.org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(KERBEROS_USER, KEYTAB_LOCATION)
+                gateway_instance.gateway.jvm.org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(settings.KERBEROS_USER, settings.KEYTAB_LOCATION)
                 logging.info('Kerberos authentication successful')
                 self.fs = gateway_instance.filesystem.get(configuration)
             else:

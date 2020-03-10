@@ -37,6 +37,8 @@ class BaseConfig(object):
     KEYTAB_LOCATION = str_env('KEYTAB_LOCATION', '/home/datatron/shiva')
     KERBEROS_USER = str_env('KERBEROS_USER', '/home/datatron/shiva')
 
+    HADOOP_XML_FILE_PATH = str_env('HADOOP_XML_FILE_PATH', '/home/datatron/shiva')
+
     JAVA_GATEWAY_JAR_LOCATION = os.path.dirname(os.path.abspath(__file__)) \
                                 + '/../java-gateway-1.0-SNAPSHOT-jar-with-dependencies.jar'
     JAVA_GATEWAY_PORT = 25333

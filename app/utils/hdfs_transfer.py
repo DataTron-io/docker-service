@@ -2,14 +2,14 @@ import time
 import logging
 import os
 import uuid
-from app.settings import SHIVA_HADOOP_USER, USE_WEBHDFS
+from app.settings import settings
 
 try:
     from urlparse import urlsplit
 except ImportError:
     from urllib.parse import urlsplit
 
-if USE_WEBHDFS:
+if settings.USE_WEBHDFS:
     logging.info('Connecting to webhdfs')
     from hdfs.client import InsecureClient
     SCHEME = 'http://'
@@ -19,7 +19,7 @@ else:
     SCHEME = 'hdfs://'
 
 
-def _download(hdfs_path, local_path, user=SHIVA_HADOOP_USER):
+def _download(hdfs_path, local_path, user=settings.SHIVA_HADOOP_USER):
     start = time.time()
     hdfs_parsed_uri = urlsplit(hdfs_path)
     logging.info('Starting the hdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
@@ -30,7 +30,7 @@ def _download(hdfs_path, local_path, user=SHIVA_HADOOP_USER):
     logging.info('Finished downloading at local file path: {} in duration : {}'.format(local_filepath, duration))
 
 
-def _upload(local_path, hdfs_path, user=SHIVA_HADOOP_USER):
+def _upload(local_path, hdfs_path, user=settings.SHIVA_HADOOP_USER):
     start = time.time()
 
     hdfs_parsed_uri = urlsplit(hdfs_path)
