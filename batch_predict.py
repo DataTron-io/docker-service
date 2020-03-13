@@ -38,9 +38,9 @@ class BatchPredictionJob:
         local_dir = os.path.join(settings.DATATRON_ROOT_LOCATION, self.workspace_slug, local_prefix)
 
         if not os.path.exists(local_dir):
-            os.makedirs(local_dir, exist_ok=True)
+            os.makedirs(local_dir, exist_ok=True) #make a local directory
 
-        local_filepath = os.path.join(local_dir, remote_filename)
+        local_filepath = os.path.join(local_dir, remote_filename) #local file path in created directory
 
         logging.info('Successfully created local filepath as: {}'.format(local_filepath))
 
@@ -66,36 +66,35 @@ class BatchPredictionJob:
         logging.info('Starting the batch process for the batch id: {}'.format(self.batch_id))
         try:
 
-            file_process_start = time.time()
+            file_process_start = time.time() #start time of process batch
 
             model_key = str(self.model_version_slug) + '__' + str(self.learn_type)
-
+            #getting the csv file path
             local_input_filepath = self.fetch_remote_file(remote_path=self.remote_input_filepath, local_prefix='input')
-            input_filename = self.remote_input_filepath.rpartition('/')[2]
-            local_output_filepath = self._create_local_path(remote_path=self.remote_output_filepath, local_prefix='output')
+            input_filename = self.remote_input_filepath.rpartition('/')[2] #get filename from path
+            local_output_filepath = self._create_local_path(remote_path=self.remote_output_filepath, local_prefix='output') #generates local path file if not found
 
-            compress = True if '.gz' in local_output_filepath.rpartition('/')[2] else False
+            compress = True if '.gz' in local_output_filepath.rpartition('/')[2] else False #if file is zip/tar.gz file then True if not False
             is_first_frame = True
 
-            for each_chunk in pd.read_csv(filepath_or_buffer=local_input_filepath,
+            for each_chunk in pd.read_csv(filepath_or_buffer=local_input_filepath, 
                                           chunksize=self.chunk_size,
-                                          delimiter=self.delimiter):
+                                          delimiter=self.delimiter): #each_chunk is one datapoint feature
 
                 logging.info('Starting to process new chunk for the batch file')
 
-                chunk_process_start = time.time()
-                requestid_add_start = time.time()
-                each_chunk = self.add_request_ids(each_chunk)
-                each_chunk = each_chunk.set_index('datatron_request_id')
+                chunk_process_start = time.time() #start time for chunk_process
+                requestid_add_start = time.time() #start time for adding request id
+                each_chunk = self.add_request_ids(each_chunk) #add datatron_request_id column with the respective request_id
+                each_chunk = each_chunk.set_index('datatron_request_id') #sets new index into first column of extract line in df
 
                 logging.info("Finished adding trace ids for current frame in : {}".
                              format(self.calculate_duration(requestid_add_start)))
 
                 model_predict_start = time.time()
                 logging.info('Calling predict batch on the model: {} , for current frame'.format(model_key))
-
-                feature_list = predictor.feature_list()
-                x_list = each_chunk[feature_list].values
+                
+                x_list=each_chunk.to_dict(orient='records') #changes into dictionary instead
                 output = predictor.predict(x_list)
                 predict_df = pd.DataFrame(output, columns=['outputs'])
                 predict_df.index = each_chunk.index.values
@@ -111,11 +110,11 @@ class BatchPredictionJob:
                              .format(self.calculate_duration(predict_merge_start)))
                 chunk_append_start = time.time()
 
-                if compress:
-                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', compression='gzip',
+                if compress: #if stated as compressed file output
+                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', compression='gzip', #create compresesed csv output
                                       encoding='utf-8', header=is_first_frame, sep=self.delimiter)
                 else:
-                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', encoding='utf-8',
+                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', encoding='utf-8', #create csv file
                                       header=is_first_frame, sep=self.delimiter)
 
                 is_first_frame = False

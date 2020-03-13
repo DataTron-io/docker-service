@@ -41,3 +41,4 @@ class ModelPredictor(object):
             endpoint = '/' + endpoint
         response = requests.post("http://localhost:" + port + endpoint, json=validated_features)
         return response
+
