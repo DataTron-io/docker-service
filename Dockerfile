@@ -16,6 +16,7 @@ RUN yum -y update && yum install -y yum-utils && yum groupinstall -y development
     && yum install -y  https://centos7.iuscommunity.org/ius-release.rpm \
     && yum install -y python36u python36u-pip python36u-devel \
     && yum install -y java-1.8.0-openjdk-headless \
-    && python3.6 -m pip install -r ${APP_DIR}/requirements.txt
+    && python3.6 -m pip install -r ${APP_DIR}/requirements.txt \
+    && python3.6 -m spacy download en_core_web_sm
 
 EXPOSE 80

@@ -2,6 +2,11 @@ import json
 import logging
 import pickle
 import pandas as pd
+from .scraping_bing import searchSingle
+import gensim
+from app.utils.helper import MeanEmbeddingVectorizer
+from keras.models import load_model
+
 
 
 class ModelPredictor(object):
@@ -9,13 +14,36 @@ class ModelPredictor(object):
     This class is modified by the user to upload the model into the Datatron platform.
     """
     def __init__(self):
-        pass
+        import spacy
+        import en_core_web_sm
+        from gensim.models.word2vec import Word2Vec
+        self.nlp = en_core_web_sm.load()
+        self.stop_words = spacy.lang.en.stop_words.STOP_WORDS
+        self.word_model = Word2Vec.load("xgboost_birth_model.pkl")
+        self.model = load_model("/model1.h5")
+        self.encoder = pickle.load("/encoder.pkl")
+        self.__class__ = self.encoder.classes_
+
+    def preprocess(self, query):
+        query = query.replace('\W', ' ')
+        query = gensim.utils.simple_preprocess(query, deacc=True)
+        query = " ".join(query)
+
+        def lemmatize(simple_docs):
+            doc = self.nlp(simple_docs)
+            tokens = [token.lemma_ for token in doc if (token.text not in self.stop_words)]
+            return tokens
+        query = lemmatize(query)
+        query = [self.word_model.wv[word] for word in query]
+        mean_vec = MeanEmbeddingVectorizer(word_model)
+        query = mean_vec.transform(query)
+        return query
 
     def predict(self, x):
         """
         Required for online and offline predictions
 
-        :param: x : A list or list of list of input vector
+        :param: x : dict
         :return: single prediction
 
         Example (Copy and paste the 3 lines to test it out):
@@ -31,8 +59,17 @@ class ModelPredictor(object):
 
         Note: Make sure all the needed packages are mentioned in requirements.txt
         """
+        query = x['query']
+        shipper = x['shipper']
+        bing_query = searchSingle(query)
+        if not bing_query:
+            return
+        bing_query = self.preprocess(preprocess)
+        result = self.model.predict(bing_query)
+        proba = [(i, j) for i, j in zip(self.classes, result)]
+        return sorted(proba, key=lambda x: x[1], reverse=True)[:6]
 
-        pass
+
 
     def predict_proba(self, x):
         """
