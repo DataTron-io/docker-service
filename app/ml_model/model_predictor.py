@@ -6,7 +6,20 @@ from .scraping_bing import searchSingle
 import gensim
 from app.utils.helper import MeanEmbeddingVectorizer
 from keras.models import load_model
+from keras.models import model_from_json
+import os
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
+from keras.optimizers import SGD
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import Dropout
+from keras.constraints import maxnorm
+import tensorflow as tf
 
+
+graph = tf.get_default_graph()
+cwd = os.getcwd()
 
 
 class ModelPredictor(object):
@@ -19,10 +32,16 @@ class ModelPredictor(object):
         from gensim.models.word2vec import Word2Vec
         self.nlp = en_core_web_sm.load()
         self.stop_words = spacy.lang.en.stop_words.STOP_WORDS
-        self.word_model = Word2Vec.load("xgboost_birth_model.pkl")
-        self.model = load_model("/model1.h5")
-        self.encoder = pickle.load("/encoder.pkl")
-        self.__class__ = self.encoder.classes_
+        self.word_model = Word2Vec.load(cwd + "/app/ml_model/word2vec.model")
+        self.model = load_model(cwd + "/app/ml_model/model2.h5", compile=False)
+        self.encoder = LabelEncoder()
+        self.encoder.classes_ = np.load(cwd + "/app/ml_model/classes.npy").tolist()
+        #json_file = open(cwd + "/app/ml_model/model.json", 'r')
+        #model = json_file.read()
+        #json_file.close()
+        #self.model = model_from_json(model)
+        # load weights into new model
+        #self.model.load_weights(cwd + "/app/ml_model/model1.h5")
 
     def preprocess(self, query):
         query = query.replace('\W', ' ')
@@ -34,8 +53,8 @@ class ModelPredictor(object):
             tokens = [token.lemma_ for token in doc if (token.text not in self.stop_words)]
             return tokens
         query = lemmatize(query)
-        query = [self.word_model.wv[word] for word in query]
-        mean_vec = MeanEmbeddingVectorizer(word_model)
+        #query = [self.word_model.wv[word] for word in query]
+        mean_vec = MeanEmbeddingVectorizer(self.word_model)
         query = mean_vec.transform(query)
         return query
 
@@ -64,10 +83,12 @@ class ModelPredictor(object):
         bing_query = searchSingle(query)
         if not bing_query:
             return
-        bing_query = self.preprocess(preprocess)
-        result = self.model.predict(bing_query)
-        proba = [(i, j) for i, j in zip(self.classes, result)]
-        return sorted(proba, key=lambda x: x[1], reverse=True)[:6]
+        bing_query = self.preprocess(bing_query)
+        bing_query = pd.DataFrame([bing_query])
+        with graph.as_default():
+            result = self.model.predict(bing_query.loc[:0, :], batch_size=1, verbose=1).tolist()
+        proba = [(i, j) for i, j in zip(self.encoder.classes_, result[0])]
+        return list(sorted(proba, key=lambda x: x[1], reverse=True)[:6])
 
 
 
