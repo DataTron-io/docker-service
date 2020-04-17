@@ -39,6 +39,7 @@ class ModelPredictor(object):
         port = settings.APIPORT
         if endpoint[0] != '/':
             endpoint = '/' + endpoint
+        #sends API post request to client's container
         response = requests.post("http://localhost:" + port + endpoint, json=validated_features)
         return response
 
