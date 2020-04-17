@@ -37,11 +37,12 @@ class BatchPredictionJob:
         remote_filename = remote_path.rpartition('/')[2]
 
         local_dir = os.path.join(settings.DATATRON_ROOT_LOCATION, self.workspace_slug, local_prefix)
-
+        
+        #make a local directory if it does not exists
         if not os.path.exists(local_dir):
-            os.makedirs(local_dir, exist_ok=True) #make a local directory
+            os.makedirs(local_dir, exist_ok=True) 
 
-        local_filepath = os.path.join(local_dir, remote_filename) #local file path in created directory
+        local_filepath = os.path.join(local_dir, remote_filename)
 
         logging.info('Successfully created local filepath as: {}'.format(local_filepath))
 
@@ -121,10 +122,10 @@ class BatchPredictionJob:
                 
                 #Saves current prediction frame into either csv or zip formats
                 if compress: 
-                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', compression='gzip', #create compresesed csv output
+                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', compression='gzip',
                                       encoding='utf-8', header=is_first_frame, sep=self.delimiter)
                 else:
-                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', encoding='utf-8', #create csv file
+                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', encoding='utf-8', 
                                       header=is_first_frame, sep=self.delimiter)
 
                 is_first_frame = False
