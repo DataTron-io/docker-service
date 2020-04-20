@@ -40,7 +40,7 @@ class BatchPredictionJob:
         
         #make a local directory if it does not exists
         if not os.path.exists(local_dir):
-            os.makedirs(local_dir, exist_ok=True) 
+            os.makedirs(local_dir, exist_ok=True)
 
         local_filepath = os.path.join(local_dir, remote_filename)
 
@@ -68,7 +68,7 @@ class BatchPredictionJob:
         logging.info('Starting the batch process for the batch id: {}'.format(self.batch_id))
         try:
             #start time of process batch
-            file_process_start = time.time() 
+            file_process_start = time.time()
 
             model_key = str(self.model_version_slug) + '__' + str(self.learn_type)
             #Generate input and output .csv paths
@@ -83,7 +83,7 @@ class BatchPredictionJob:
             #each_chunk is one data predict request to publisher
             for each_chunk in pd.read_csv(filepath_or_buffer=local_input_filepath, 
                                           chunksize=self.chunk_size,
-                                          delimiter=self.delimiter): 
+                                          delimiter=self.delimiter):
 
                 logging.info('Starting to process new chunk for the batch file')
                 
@@ -125,7 +125,7 @@ class BatchPredictionJob:
                     each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', compression='gzip',
                                       encoding='utf-8', header=is_first_frame, sep=self.delimiter)
                 else:
-                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', encoding='utf-8', 
+                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', encoding='utf-8',
                                       header=is_first_frame, sep=self.delimiter)
 
                 is_first_frame = False

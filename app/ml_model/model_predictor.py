@@ -42,4 +42,3 @@ class ModelPredictor(object):
         #sends API post request to client's container
         response = requests.post("http://localhost:" + port + endpoint, json=validated_features)
         return response
-
