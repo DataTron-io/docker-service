@@ -4,6 +4,7 @@ import time
 import logging
 import json
 import pandas as pd
+import ast
 from app.utils import hdfs_transfer as ht
 from app.ml_model import predictor
 from app.settings import settings
@@ -103,12 +104,12 @@ class BatchPredictionJob:
                 logging.info('Calling predict batch on the model: {} , for current frame'.format(model_key))
                 logging.info('each_chunk: {}'.format(each_chunk))
                 #changes each_chunk into dictionary, followed by json format
-                x_list=each_chunk.to_dict(orient='records') 
-                logging.info("x_list: {}".format(x_list))
-                logging.info("x_list type: {}".format(x_list.type))
-                x_json=json.dumps(x_list)
+                ast_list=each_chunk.to_json(orient='records')
+                logging.info("ast_list: {}".format(ast_list))
+                ast_output =ast.literal_eval(ast_list)
+                logging.info("ast_putput: {}".format(ast_output))
                 #Gets prediction of current frame from docker api endpoint
-                output = predictor.predict(x_list)
+                output = predictor.predict(ast_output[0])
                 #Inserts prediction into dataframe for storage
                 predict_df = pd.DataFrame(output, columns=['outputs'])
                 predict_df.index = each_chunk.index.values
