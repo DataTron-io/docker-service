@@ -88,10 +88,10 @@ class BatchPredictionJob:
                 logging.info('Starting to process new chunk for the batch file')
                 logging.info('each_chunk 1: {}'.format(each_chunk))
                 #start time for chunk_process & adding request_id
-                chunk_process_start = time.time() 
-                requestid_add_start = time.time() 
+                chunk_process_start = time.time()
+                requestid_add_start = time.time()
                 #add datatron_request_id column using respective request_id
-                each_chunk = self.add_request_ids(each_chunk) 
+                each_chunk = self.add_request_ids(each_chunk)
                 logging.info('each_chunk 2: {}'.format(each_chunk))
                 #sets new index into first column of extract line in df
                 each_chunk = each_chunk.set_index('datatron_request_id') 

@@ -27,7 +27,8 @@ class ModelPredictor(object):
         dsd_client.stop()
         deploy_data = deployment_response.json()
         features = deploy_data['result']['model']['features']
-
+        logging.info("Features: {}".format(features))
+        logging.info("json_data: {}".format(json_data))
         validated_features = {}
         for feature in features:
             if feature in json_data:

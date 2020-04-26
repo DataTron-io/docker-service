@@ -28,7 +28,7 @@ class BaseConfig(object):
     REMOTE_INPUT_FILEPATH = str_env('REMOTE_INPUT_FILEPATH', '/home/datatron/shiva')
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
-    CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
+    CHUNK_SIZE = str_env('CHUNK_SIZE', 1)
     DELIMITER = str_env('DELIMITER', ',')
     PREDICT_ENDPOINT = str_env('PREDICT_ENDPOINT', '/predict')
     PROBA_ENDPOINT = str_env('PROBA_ENDPOINT', '')
