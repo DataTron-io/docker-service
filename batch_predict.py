@@ -102,7 +102,7 @@ class BatchPredictionJob:
                 
                 #changes each_chunk into dictionary, followed by json format
                 x_list=each_chunk.to_dict(orient='records') 
-                x_json=json.dump(x_list)
+                x_json=json.dumps(x_list)
                 #Gets prediction of current frame from docker api endpoint
                 output = predictor.predict(x_list)
                 #Inserts prediction into dataframe for storage
