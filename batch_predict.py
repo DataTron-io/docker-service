@@ -6,8 +6,9 @@ import json
 import pandas as pd
 import ast
 from app.utils import hdfs_transfer as ht
-from app.ml_model import predictor
 from app.settings import settings
+import requests
+from datatron.common.discovery import DatatronDiscovery
 
 logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
 
@@ -64,6 +65,38 @@ class BatchPredictionJob:
         dframe['datatron_request_id'] = [self._generate_trace_id() for _ in range(len(dframe))]
         logging.info('Finished updating the current frame with the datatron requests id')
         return dframe
+    
+    def _get_service_discovery_client(self):
+        dsd_discovery_client = DatatronDiscovery(discovery_type=settings.DISCOVERY_TYPE,
+                                                 services_type='infrastructure',
+                                                 hosts=settings.SHIVA_ZOOKEEPER_HOSTS,
+                                                 caching=False)
+        return dsd_discovery_client
+
+    def batch_predict(self, json_data, proba=False):
+        dsd_client = self._get_service_discovery_client()
+        dictator_url = dsd_client.get_single_instance(service_path='dictator', pick_random=True)
+        full_url = dictator_url + '/api/batch_prediction/{}'.format(settings.BATCH_ID)
+        batch_response = requests.get(url=full_url)
+        dsd_client.stop()
+        deploy_data = batch_response.json()
+        model_features = batch_response['model']['features']
+        logging.info("Features: {}".format(model_features))
+        logging.info("json_data: {}".format(json_data))
+        validated_features = {}
+        for feature in model_features:
+            if feature in json_data:
+                validated_features[feature] = json_data[feature]
+
+        logging.info('Validated Features: {}'.format(validated_features))
+
+        endpoint = settings.PROBA_ENDPOINT if proba else settings.PREDICT_ENDPOINT
+        port = settings.APIPORT
+        if endpoint[0] != '/':
+            endpoint = '/' + endpoint
+        #sends API post request to client's container
+        response = requests.post("http://localhost:" + port + endpoint, json=validated_features)
+        return response
 
     def process_batch(self):
         logging.info('Starting the batch process for the batch id: {}'.format(self.batch_id))
@@ -107,10 +140,11 @@ class BatchPredictionJob:
                 ast_list=each_chunk.to_json(orient='records')
                 logging.info("ast_list: {}".format(ast_list))
                 ast_output =ast.literal_eval(ast_list)
-                logging.info("ast_putput: {}".format(ast_output))
+                logging.info("Sending ast_output to prediction: {}".format(ast_output))
                 #Gets prediction of current frame from docker api endpoint
-                output = predictor.predict(ast_output[0])
+                output = self.batch_predict(ast_output[0])
                 #Inserts prediction into dataframe for storage
+                logging.info("Prediction output: {}".format(output))
                 predict_df = pd.DataFrame(output, columns=['outputs'])
                 predict_df.index = each_chunk.index.values
 
