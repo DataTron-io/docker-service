@@ -80,7 +80,7 @@ class BatchPredictionJob:
         batch_response = requests.get(url=full_url)
         dsd_client.stop()
         deploy_data = batch_response.json()
-        model_features = batch_response['model']['features']
+        model_features = deploy_data['model']['features']
         logging.info("Features: {}".format(model_features))
         logging.info("json_data: {}".format(json_data))
         validated_features = {}
