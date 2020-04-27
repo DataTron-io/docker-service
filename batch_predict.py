@@ -119,26 +119,22 @@ class BatchPredictionJob:
                                           chunksize=self.chunk_size,
                                           delimiter=self.delimiter):
 
-                logging.info('Starting to process new chunk for the batch file')
-                logging.info('each_chunk 1: {}'.format(each_chunk))
+                logging.info('Starting to process new chunk for the batch file: {}'.format(each_chunk))
                 #start time for chunk_process & adding request_id
                 chunk_process_start = time.time()
                 requestid_add_start = time.time()
                 #add datatron_request_id column using respective request_id
                 each_chunk = self.add_request_ids(each_chunk)
-                logging.info('each_chunk 2: {}'.format(each_chunk))
                 #sets new index into first column of extract line in df
                 each_chunk = each_chunk.set_index('datatron_request_id') 
-                logging.info('each_chunk 3: {}'.format(each_chunk))
                 logging.info("Finished adding trace ids for current frame in : {}".
                              format(self.calculate_duration(requestid_add_start)))
 
                 model_predict_start = time.time()
                 logging.info('Calling predict batch on the model: {} , for current frame'.format(model_key))
-                logging.info('each_chunk: {}'.format(each_chunk))
-                #changes each_chunk into dictionary, followed by json format
+                #changes each_chunk into json str format
                 ast_list=each_chunk.to_json(orient='records')
-                logging.info("ast_list: {}".format(ast_list))
+                #changes json list to json list format
                 ast_output =ast.literal_eval(ast_list)
                 logging.info("Sending ast_output to prediction: {}".format(ast_output))
                 #Gets prediction of current frame from docker api endpoint
