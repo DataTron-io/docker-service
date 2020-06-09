@@ -34,8 +34,15 @@ class TestModelPredictor():
         except Exception as e:
             logging.error("An exception occured when loading challenger_output.json: {}".format(str(e)))
 
+    def write_json(self, sample_output):
+        try:
+            with open('app/resources/tests/challenger_output.json', 'w') as outfile:
+                json.dump(sample_output, outfile, indent=4)
+        except Exception as e:
+            logging.error("An exception occured when writing into challenger_output.json: {}".format(str(e)))
+
     #integration tests
-    @pytest.mark.dependency
+    @pytest.mark.dependency()
     def test_feature_list(self):
         assert isinstance(self.predictor.feature_list(), list) , "return value of feature_list should be type list"
 
@@ -54,10 +61,12 @@ class TestModelPredictor():
         
         logging.info("Writing challenger_endpoint output into json format")
         sample_output = json_config_output
-        sample_output['prediction'] = {'outputs': y[0].item()}
+        sample_output['results']['primary']['prediction'] = {'outputs': y[0].item()}
         logging.info("Challenger Endpoint output: {}".format(sample_output))
-        logging.warn("The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model")
-
+        logging.warning("The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model")
+        
+        self.write_json(sample_output)
+        
     @pytest.mark.skip(reason="not current under used")
     def test_predict_proba(self, x):
         assert isinstance(self.predict_proba(x), dict)

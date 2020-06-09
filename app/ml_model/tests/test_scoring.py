@@ -23,7 +23,7 @@ class TestModelPredictor():
             logging.error("An exception occured during reading of csv file: {}".format(str(e)))
 
     
-    @pytest.mark.dependency
+    @pytest.mark.dependency()
     def test_feature_list(self):
         assert isinstance(self.predictor.feature_list(), list) , "return value of feature_list should be type list"
 
@@ -40,7 +40,7 @@ class TestModelPredictor():
         
         logging.info("Integration test for scoring is successful!")
         logging.info("The prediction generated is: {} and will be stored into a csv or zip format via Datatron Platform into HDFS storage".format(prediction))
-        logging.warn("The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model")
+        logging.warning("The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model")
 
     @pytest.mark.skip(reason="not current under used")
     def test_predict_proba(self, x):
