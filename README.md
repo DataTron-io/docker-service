@@ -1,10 +1,3 @@
-##To run mock test
-```bash
-python -m pytest -s -p no:cacheprovider 
-pytest -q --x-data="<insert model row data>" --stringinput="<insert model row data>" test_model_predictor.py
-pytest -v //verbose gives more details on which case has passed
-```
-
 # Docker-Model Testing
 
 After making changes to the repository for your dockerised model, follow the steps below to start the integration testing for your changes.
