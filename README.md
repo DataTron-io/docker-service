@@ -162,7 +162,7 @@ ERROR:   py3.7: commands failed
 Finally, navigate to app/resources/tests/challenger_output.json to see the challenger generated Response JSON. The prediction output should be updated in the json file.
 
 An example output would be:
-'''
+```
 {
     "datatron_meta": {
         "workitem_slug": "dt-challenger-challenger-2243c12c",
@@ -199,9 +199,10 @@ An example output would be:
         "secondary": []
     }
 }
-'''
+```
 
 This mocked challenger endpoint response JSON is what you will see after sending a "Test Request" to Datatron's challenger endpoint. This can be seen on the UI on Datatron platform as shown below:
+
 ![](images/Challenger-doc-2.png)
 
 ## Built With
