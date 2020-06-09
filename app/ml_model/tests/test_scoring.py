@@ -20,7 +20,7 @@ class TestModelPredictor():
             dataDB= pd.read_csv(filepath_or_buffer=self.file, nrows=self.numofrows, delimiter=",")
             return dataDB
         except Exception as e:
-            logging.warn("An exception occured during reading of csv file: {}".format(str(e)))
+            logging.error("An exception occured during reading of csv file: {}".format(str(e)))
 
     
     @pytest.mark.dependency
@@ -34,13 +34,13 @@ class TestModelPredictor():
         x_list = row[feature_list].values
         prediction=self.predictor.predict(x_list)
         
-        assert isinstance(prediction, np.ndarray) , "return value of predict should be of type numpy array"
-        assert len(prediction) != 0 , "return list cannot be empty"
-        assert len(prediction) == self.numofrows , "number of prediction needs to be same as number of chunks"
+        assert isinstance(prediction, np.ndarray) , "[ERROR] return values of predict should be of type numpy array"
+        assert len(prediction) != 0 , "[ERROR] return list cannot be empty"
+        assert len(prediction) == self.numofrows , "[ERROR] number of predictions needs to be same as number of chunks"
         
         logging.info("Integration test for scoring is successful!")
         logging.info("The prediction generated is: {} and will be stored into a csv or zip format via Datatron Platform into HDFS storage".format(prediction))
-        logging.info("*Note: The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model*")
+        logging.warn("The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model")
 
     @pytest.mark.skip(reason="not current under used")
     def test_predict_proba(self, x):

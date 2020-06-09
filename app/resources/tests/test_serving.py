@@ -21,7 +21,7 @@ class TestModelPredictor():
             with config.open() as fp:
                 return json.load(fp)
         except Exception as e:
-            logging.warn("An exception occured when loading challenger_endpoint.json: {}".format(str(e)))
+            logging.error("An exception occured when loading challenger_endpoint.json: {}".format(str(e)))
 
 
     @pytest.fixture
@@ -32,7 +32,7 @@ class TestModelPredictor():
             with config.open() as fp:
                 return json.load(fp)
         except Exception as e:
-            logging.warn("An exception occured when loading challenger_output.json: {}".format(str(e)))
+            logging.error("An exception occured when loading challenger_output.json: {}".format(str(e)))
 
     #integration tests
     @pytest.mark.dependency
@@ -48,15 +48,15 @@ class TestModelPredictor():
         logging.info("Getting challenger prediction...")
         y= self.predictor.predict(x)
         
-        assert isinstance(y, np.ndarray) , "[WARN] return value of predict should be of type numpy array"
-        assert len(y) != 0 , "[WARN] return numpy array cannot be empty"
-        assert len(y) == 1 , "[WARN] number of predictions must be one for serving"
+        assert isinstance(y, np.ndarray) , "[ERROR] return value of predict should be of type numpy array"
+        assert len(y) != 0 , "[ERROR] return numpy array cannot be empty"
+        assert len(y) == 1 , "[ERROR] number of predictions must be one for serving"
         
         logging.info("Writing challenger_endpoint output into json format")
         sample_output = json_config_output
         sample_output['prediction'] = {'outputs': y[0].item()}
         logging.info("Challenger Endpoint output: {}".format(sample_output))
-        logging.info("*Note: The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model*")
+        logging.warn("The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model")
 
     @pytest.mark.skip(reason="not current under used")
     def test_predict_proba(self, x):
