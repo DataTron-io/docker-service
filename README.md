@@ -20,7 +20,7 @@ Requirements for Docker-Model Integration Testing:
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
+A step by step series of examples that tell you how to get a development env running.
 
 Use the following command to install tox:
 
@@ -29,11 +29,10 @@ pip install tox
 ```
 It is also fine to install tox into virtualenv environment.
 If you face any issue with installing tox, please follow this [link](https://tox.readthedocs.io/en/latest/install.html).
-The rest of the requirements will be installed via requirement.txt after running tox
+
+The rest of the requirements will be installed via requirement.txt after running tox.
 
 *Note: Do not install pytest in your root as it may cause issues during integration testing*
-
-End with an example of getting some data out of the system or using it for a little demo
 
 ## Running challenger-endpoint serving test
 
@@ -41,7 +40,8 @@ Firstly in your chosen IDE, navigate to app/resources/tests/challenger_endpoint.
 This will be the sample JSON input to be changed in our testing enviroment
 
 When using the Datatron MLops platform, the sample JSON input will be substitute into JSON input field as shown below:
-![][image_ref_challenger_input]
+
+![image_ref][image_ref_challenger_input]
 
 Change the "data" field with your features and test values as corresponding key-pair values.
 A sample is as shown below:
