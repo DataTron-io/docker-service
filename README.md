@@ -55,6 +55,7 @@ A sample is as shown below:
 	"team": "dt-default-team"
 }
 ```
+*Note: The features declared in feature_list function under model_predictor.py, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model*
 
 When using the Datatron MLops platform, the sample JSON input will be substitute into JSON input field as shown below:
 
