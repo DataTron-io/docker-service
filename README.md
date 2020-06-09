@@ -28,7 +28,7 @@ The rest of the requirements will be installed via requirement.txt after running
 
 *Note: Do not install pytest in your root as it may cause issues during integration testing*
 
-## Running challenger-endpoint serving test
+## Preparing challenger-endpoint serving test
 
 Firstly in your chosen IDE, navigate to app/resources/tests/challenger_endpoint.json
 
@@ -62,7 +62,7 @@ When using the Datatron MLops platform, the sample JSON input will be substitute
 
 
 
-## Running scoring test
+## Preparing scoring test
 
 Firstly in your chosen IDE, navigate to app/ml_model/tests/test_scroing.py
 
@@ -77,7 +77,7 @@ class TestModelPredictor():
         self.file="/root/MLdata/birth_weight.csv" << Change this path
 ```
 
-## Deployment
+## Deployment of integration test env
 
 In order to deploy the intergration test:
 Open your IDE terminal and proceed to the docker-service directory
