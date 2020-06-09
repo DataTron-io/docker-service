@@ -90,7 +90,7 @@ tox
 ```
 This will run tox, which is an automated software testing tool. It will create virtual enviroments to run the integration tests against the dependencies stated in requirement.txt file.
 
-A sample successful tox run is as shown below:
+The reports for test_scoring.py and test_serving.py integration tests could be seen in the sample succcessful tox run as shown below:
 ```
 (base) ngzhiyong@Ngs-MacBook-Pro docker-service % tox
 py3.7 installed: absl-py==0.9.0,aniso8601==8.0.0,astor==0.8.1,attrs==19.1.0,backoff==1.4.3,certifi==2020.4.5.1,chardet==3.0.4,docopt==0.6.2,Flask==0.10.1,Flask-HTTPAuth==2.7.0,Flask-RESTful==0.3.5,Flask-Script==2.0.5,Flask-WTF==0.14.2,gast==0.3.3,gevent==1.3.1,greenlet==0.4.16,grpcio==1.29.0,gunicorn==19.8.1,h5py==2.10.0,hdfs==2.1.0,idna==2.5,importlib-metadata==1.6.0,itsdangerous==1.1.0,Jinja2==2.11.2,kazoo==2.4.0,Keras==2.2.4,Keras-Applications==1.0.8,Keras-Preprocessing==1.1.2,Markdown==3.2.2,MarkupSafe==1.1.1,mock==4.0.2,numpy==1.18.5,pandas==0.23.3,pluggy==0.6.0,protobuf==3.12.2,py==1.8.1,pytest==3.4.2,python-dateutil==2.8.1,pytz==2020.1,PyYAML==5.3.1,requests==2.18.2,scikit-learn==0.20.0,scipy==1.4.1,six==1.15.0,tensorboard==1.13.1,tensorflow==1.13.2,tensorflow-estimator==1.13.0,termcolor==1.1.0,urllib3==1.22,Werkzeug==1.0.1,WTForms==2.3.1,xgboost==0.90,zipp==3.1.0
@@ -158,6 +158,52 @@ ERROR: InvocationError for command /Users/ngzhiyong/Documents/GitHub/docker-serv
 _____________________________________________________________________________________ summary ______________________________________________________________________________________
 ERROR:   py3.7: commands failed
 ```
+
+Finally, navigate to app/resources/tests/challenger_output.json to see the challenger generated Response JSON. The prediction output should be updated in the json file.
+
+An example output would be:
+'''
+{
+    "datatron_meta": {
+        "workitem_slug": "dt-challenger-challenger-2243c12c",
+        "datatron_request_id": "dtrequest-dt-challenger--0f2d147c",
+        "datatron_param": {
+            "model_timeout": 4000
+        },
+        "config_used": {
+            "timeout": 80,
+            "timeout_type": "challenger_sla_timeout",
+            "sequence_id": null,
+            "routing_method": "all_publishers"
+        }
+    },
+    "results": {
+        "primary": {
+            "prediction_meta": {
+                "model_type": "model_type",
+                "model_learn_type": "model_learn_type",
+                "model_version": "model_version_number",
+                "model_name": "modelname",
+                "model_slug": "dtmod-modelname-associatedID",
+                "publisher_slug": "dt-publisher-publishername-associatedID",
+                "model_version_slug": "dtmod-modelname-associatedID"
+            },
+            "prediction": {
+                "outputs": 2226.79638671875
+            },
+            "status": {
+                "status_code": 200,
+                "status_msg": "PublisherPredictionSuccess"
+            }
+        },
+        "secondary": []
+    }
+}
+'''
+
+This mocked challenger endpoint response JSON is what you will see after sending a "Test Request" to Datatron's challenger endpoint. This can be seen on the UI on Datatron platform as shown below:
+![](images/Challenger-doc-2.png)
+
 ## Built With
 
 * [Pytest](https://docs.pytest.org/en/latest/contents.html) - Unittesting Library
