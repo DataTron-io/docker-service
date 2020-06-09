@@ -33,16 +33,11 @@ The rest of the requirements will be installed via requirement.txt after running
 Firstly in your chosen IDE, navigate to app/resources/tests/challenger_endpoint.json
 
 This will be the sample JSON input to be changed in our testing enviroment
-
-When using the Datatron MLops platform, the sample JSON input will be substitute into JSON input field as shown below:
-
-![](images/Challenger-doc-1.png)
-
-Change the "data" field with your features and test values as corresponding key-pair values.
+Then change the "data" field with your features and test values as corresponding key-pair values.
 A sample is as shown below:
 ```
 {
-	"data": {
+      "data": {           <<<<< Change from here
        "Black": 0,
        "Married": 1,
        "Boy": 0,
@@ -51,7 +46,7 @@ A sample is as shown below:
        "CigsPerDay":0,
        "MomWtGain": 2,
        "Visit": 3,
-       "MomEdLevel": 2
+       "MomEdLevel": 2.    <<<<< to here
    },
 	"datatron_param": {
 		"model_timeout": 4000
@@ -60,6 +55,12 @@ A sample is as shown below:
 	"team": "dt-default-team"
 }
 ```
+
+When using the Datatron MLops platform, the sample JSON input will be substitute into JSON input field as shown below:
+
+![](images/Challenger-doc-1.png)
+
+
 
 ## Running scoring test
 
