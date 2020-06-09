@@ -8,19 +8,13 @@ These instructions will get you started on setting up integration testing on you
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-
-```
 Requirements for Docker-Model Integration Testing:
 1. Pytest
 2. Tox
 3. numpy
 4. pandas
-```
 
 ### Installing
-
-A step by step series of examples that tell you how to get a development env running.
 
 Use the following command to install tox:
 
@@ -37,6 +31,7 @@ The rest of the requirements will be installed via requirement.txt after running
 ## Running challenger-endpoint serving test
 
 Firstly in your chosen IDE, navigate to app/resources/tests/challenger_endpoint.json
+
 This will be the sample JSON input to be changed in our testing enviroment
 
 When using the Datatron MLops platform, the sample JSON input will be substitute into JSON input field as shown below:
@@ -69,6 +64,7 @@ A sample is as shown below:
 ## Running scoring test
 
 Firstly in your chosen IDE, navigate to app/ml_model/tests/test_scroing.py
+
 Add your input CSV file path for scoring in _predictorclass function under self.file as shown below:
 ```
 @pytest.mark.incremental
@@ -121,7 +117,7 @@ ________________________________________________________________________________
   congratulations :)
 ```
 
-If an error occurs during integration testing, the error report will be generated in the terminal window
+If an error occurs during integration testing, the error report will be generated in the terminal window.
 A sample errorneous output is as shown below:
 ```
 (base) ngzhiyong@Ngs-MacBook-Pro docker-service % tox
