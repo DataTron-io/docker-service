@@ -1,0 +1,36 @@
+{
+    "datatron_meta": {
+        "workitem_slug": "dt-challenger-challenger-2243c12c",
+        "datatron_request_id": "dtrequest-dt-challenger--0f2d147c",
+        "datatron_param": {
+            "model_timeout": 4000
+        },
+        "config_used": {
+            "timeout": 80,
+            "timeout_type": "challenger_sla_timeout",
+            "sequence_id": null,
+            "routing_method": "all_publishers"
+        }
+    },
+    "results": {
+        "primary": {
+            "prediction_meta": {
+                "model_type": "model_type",
+                "model_learn_type": "model_learn_type",
+                "model_version": "model_version_number",
+                "model_name": "modelname",
+                "model_slug": "dtmod-modelname-associatedID",
+                "publisher_slug": "dt-publisher-publishername-associatedID",
+                "model_version_slug": "dtmod-modelname-associatedID"
+            },
+            "prediction": {
+                "outputs": 2226.79638671875
+            },
+            "status": {
+                "status_code": 200,
+                "status_msg": "PublisherPredictionSuccess"
+            }
+        },
+        "secondary": []
+    }
+} 
