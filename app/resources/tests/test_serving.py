@@ -3,7 +3,6 @@ import json
 import pathlib
 import pytest
 import numpy as np
-import pandas as pd
 import logging
 import os
 
@@ -16,24 +15,30 @@ class TestModelPredictor():
 
     @pytest.fixture
     def json_config_input(self, request):
-        file = pathlib.Path(request.node.fspath.strpath)
-        config = file.with_name('challenger_endpoint.json')
-        with config.open() as fp:
-            return json.load(fp)
+        try:
+            file = pathlib.Path(request.node.fspath.strpath)
+            config = file.with_name('challenger_endpoint.json')
+            with config.open() as fp:
+                return json.load(fp)
+        except Exception as e:
+            logging.warn("An exception occured when loading challenger_endpoint.json: {}".format(str(e)))
+
 
     @pytest.fixture
     def json_config_output(self, request):
-        file = pathlib.Path(request.node.fspath.strpath)
-        config = file.with_name('challenger_output.json')
-        with config.open() as fp:
-            return json.load(fp)
+        try:
+            file = pathlib.Path(request.node.fspath.strpath)
+            config = file.with_name('challenger_output.json')
+            with config.open() as fp:
+                return json.load(fp)
+        except Exception as e:
+            logging.warn("An exception occured when loading challenger_output.json: {}".format(str(e)))
 
     #integration tests
     @pytest.mark.dependency
     def test_feature_list(self):
         assert isinstance(self.predictor.feature_list(), list) , "return value of feature_list should be type list"
 
-    #@pytest.mark.parametrize("xdata", [{'Black': [0,1], 'Married': [1,1], 'Boy': [0,1], 'MomAge': [3,5],'MomSmoke': [0,1], 'CigsPerDay': [0,0], 'MomWtGain': [2,1], 'Visit': [3,1], 'MomEdLevel': [2,1]}])
     @pytest.mark.dependency(depends=['TestModelPredictor::test_feature_list'])
     def test_predict_serving(self, json_config_input, json_config_output):
         x_dict=json_config_input["data"]
@@ -51,8 +56,7 @@ class TestModelPredictor():
         sample_output = json_config_output
         sample_output['prediction'] = {'outputs': y[0].item()}
         logging.info("Challenger Endpoint output: {}".format(sample_output))
-        logging.info("*Note: The features declared in feature_list function, will be the features passed into the model, \
-            hence ensure that feature declared are the ones used to train the model*")
+        logging.info("*Note: The features declared in feature_list function, will be the features passed into the model, hence ensure that feature declared are the ones used to train the model*")
 
     @pytest.mark.skip(reason="not current under used")
     def test_predict_proba(self, x):
