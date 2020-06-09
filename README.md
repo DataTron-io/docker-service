@@ -41,7 +41,7 @@ This will be the sample JSON input to be changed in our testing enviroment
 
 When using the Datatron MLops platform, the sample JSON input will be substitute into JSON input field as shown below:
 
-![]()
+![](images/Challenger-doc-1.png)
 
 Change the "data" field with your features and test values as corresponding key-pair values.
 A sample is as shown below:
