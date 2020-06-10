@@ -35,7 +35,7 @@ Firstly in your chosen IDE, navigate to app/resources/tests/challenger_endpoint.
 This will be the sample JSON input to be changed in our testing enviroment
 Then change the "data" field with your features and test values as corresponding key-pair values.
 A sample is as shown below:
-```
+```json
 {
       "data": {           <<<<< Change from here
        "Black": 0,
@@ -46,7 +46,7 @@ A sample is as shown below:
        "CigsPerDay":0,
        "MomWtGain": 2,
        "Visit": 3,
-       "MomEdLevel": 2.    <<<<< to here
+       "MomEdLevel": 2     <<<<< to here
    },
 	"datatron_param": {
 		"model_timeout": 4000
@@ -68,7 +68,7 @@ When using the Datatron MLops platform, the sample JSON input will be substitute
 Firstly in your chosen IDE, navigate to app/ml_model/tests/test_scroing.py
 
 Add your input CSV file path for scoring in _predictorclass function under self.file as shown below:
-```
+```python
 @pytest.mark.incremental
 class TestModelPredictor():
     @pytest.fixture(autouse=True)
@@ -79,15 +79,17 @@ class TestModelPredictor():
 ```
 ## Deployment of integration test env
 In order to deploy the intergration test:
-Open your IDE terminal and proceed to the docker-service directory
-(This is important as pytest will use this as the base directory to source for tests)
+
+- Open your IDE terminal and proceed to the docker-service directory
+- **Note: This is important as pytest will use this as the base directory to source for tests**
+
 Key in the following command into the terminal window
-```
+```bash
 tox
 ```
 This will run tox, which is an automated software testing tool. It will create virtual enviroments to run the integration tests against the dependencies stated in requirement.txt file.
 The reports for test_scoring.py and test_serving.py integration tests could be seen in the sample succcessful tox run as shown below:
-```
+```bash
 (base) ngzhiyong@Ngs-MacBook-Pro docker-service % tox
 py3.7 installed: absl-py==0.9.0,aniso8601==8.0.0,astor==0.8.1,attrs==19.1.0,backoff==1.4.3,certifi==2020.4.5.1,chardet==3.0.4,docopt==0.6.2,Flask==0.10.1,Flask-HTTPAuth==2.7.0,Flask-RESTful==0.3.5,Flask-Script==2.0.5,Flask-WTF==0.14.2,gast==0.3.3,gevent==1.3.1,greenlet==0.4.16,grpcio==1.29.0,gunicorn==19.8.1,h5py==2.10.0,hdfs==2.1.0,idna==2.5,importlib-metadata==1.6.0,itsdangerous==1.1.0,Jinja2==2.11.2,kazoo==2.4.0,Keras==2.2.4,Keras-Applications==1.0.8,Keras-Preprocessing==1.1.2,Markdown==3.2.2,MarkupSafe==1.1.1,mock==4.0.2,numpy==1.18.5,pandas==0.23.3,pluggy==0.6.0,protobuf==3.12.2,py==1.8.1,pytest==3.4.2,python-dateutil==2.8.1,pytz==2020.1,PyYAML==5.3.1,requests==2.18.2,scikit-learn==0.20.0,scipy==1.4.1,six==1.15.0,tensorboard==1.13.1,tensorflow==1.13.2,tensorflow-estimator==1.13.0,termcolor==1.1.0,urllib3==1.22,Werkzeug==1.0.1,WTForms==2.3.1,xgboost==0.90,zipp==3.1.0
 py3.7 run-test-pre: PYTHONHASHSEED='1807217832'
@@ -114,7 +116,7 @@ ________________________________________________________________________________
 ```
 If an error occurs during integration testing, the error report will be generated in the terminal window.
 A sample errorneous output is as shown below:
-```
+```bash
 (base) ngzhiyong@Ngs-MacBook-Pro docker-service % tox
 py3.7 installed: absl-py==0.9.0,aniso8601==8.0.0,astor==0.8.1,attrs==19.1.0,backoff==1.4.3,certifi==2020.4.5.1,chardet==3.0.4,docopt==0.6.2,Flask==0.10.1,Flask-HTTPAuth==2.7.0,Flask-RESTful==0.3.5,Flask-Script==2.0.5,Flask-WTF==0.14.2,gast==0.3.3,gevent==1.3.1,greenlet==0.4.16,grpcio==1.29.0,gunicorn==19.8.1,h5py==2.10.0,hdfs==2.1.0,idna==2.5,importlib-metadata==1.6.0,itsdangerous==1.1.0,Jinja2==2.11.2,kazoo==2.4.0,Keras==2.2.4,Keras-Applications==1.0.8,Keras-Preprocessing==1.1.2,Markdown==3.2.2,MarkupSafe==1.1.1,mock==4.0.2,numpy==1.18.5,pandas==0.23.3,pluggy==0.6.0,protobuf==3.12.2,py==1.8.1,pytest==3.4.2,python-dateutil==2.8.1,pytz==2020.1,PyYAML==5.3.1,requests==2.18.2,scikit-learn==0.20.0,scipy==1.4.1,six==1.15.0,tensorboard==1.13.1,tensorflow==1.13.2,tensorflow-estimator==1.13.0,termcolor==1.1.0,urllib3==1.22,Werkzeug==1.0.1,WTForms==2.3.1,xgboost==0.90,zipp==3.1.0
 py3.7 run-test-pre: PYTHONHASHSEED='1316544416'
@@ -151,8 +153,9 @@ ________________________________________________________________________________
 ERROR:   py3.7: commands failed
 ```
 Finally, navigate to app/resources/tests/challenger_output.json to see the challenger generated Response JSON. The prediction output should be updated in the json file.
+
 An example output would be:
-```
+```json
 {
     "datatron_meta": {
         "workitem_slug": "dt-challenger-challenger-2243c12c",
@@ -179,7 +182,7 @@ An example output would be:
                 "model_version_slug": "dtmod-modelname-associatedID"
             },
             "prediction": {
-                "outputs": 2226.79638671875
+                "outputs": 2226.79638671875     <<<<< updated prediction output
             },
             "status": {
                 "status_code": 200,
