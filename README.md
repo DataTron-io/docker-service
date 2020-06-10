@@ -81,7 +81,7 @@ class TestModelPredictor():
 In order to deploy the intergration test:
 
 - Open your IDE terminal and proceed to the docker-service directory
-- **Note: This is important as pytest will use this as the base directory to source for tests**
+- *Note: This is important as pytest will use this as the base directory to source for tests*
 
 Key in the following command into the terminal window
 ```bash
