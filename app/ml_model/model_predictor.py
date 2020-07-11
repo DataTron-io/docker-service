@@ -2,6 +2,9 @@ import json
 import logging
 import pickle
 import pandas as pd
+import sklearn
+from sklearn.externals import joblib
+
 
 
 class ModelPredictor(object):
@@ -9,6 +12,7 @@ class ModelPredictor(object):
     This class is modified by the user to upload the model into the Datatron platform.
     """
     def __init__(self):
+        self.model = joblib.load('models/root.pkl')
         pass
 
     def predict(self, x):
@@ -32,7 +36,7 @@ class ModelPredictor(object):
         Note: Make sure all the needed packages are mentioned in requirements.txt
         """
 
-        pass
+        return self.model.predict([x])
 
     def predict_proba(self, x):
         """
@@ -51,5 +55,5 @@ class ModelPredictor(object):
         :param: None
         :return: A list of features
         """
-        return ['Black','Married','Boy','MomAge','MomSmoke','CigsPerDay','MomWtGain','Visit','MomEdLevel']
+        return ["query"]
 

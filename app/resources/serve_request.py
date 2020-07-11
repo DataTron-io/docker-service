@@ -28,10 +28,9 @@ class ServePredictRequest(Resource):
 
             x_dict = request_data['data']
             feature_list = predictor.feature_list()
-            x = np.array([[x_dict[feature_name] for feature_name in feature_list]])
+            x = x_dict["query"]
             y = predictor.predict(x)
-            result['prediction'] = {'outputs': y[0].item()}
-
+            result['prediction'] = {'outputs': y[0]}
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
             status_code = 200
