@@ -2,19 +2,28 @@ import time
 import logging
 import os
 import uuid
+from app.settings import settings
+
 try:
     from urlparse import urlsplit
 except ImportError:
     from urllib.parse import urlsplit
-from hdfs.client import InsecureClient
-from app.settings import settings
+
+if settings.USE_WEBHDFS:
+    logging.info('Connecting to webhdfs')
+    from hdfs.client import InsecureClient
+    SCHEME = 'http://'
+else:
+    logging.info('Connecting to hdfs')
+    from .hdfs_client import InsecureClient
+    SCHEME = 'hdfs://'
 
 
-def _download(hdfs_path, local_path):
+def _download(hdfs_path, local_path, user=settings.SHIVA_HADOOP_USER):
     start = time.time()
     hdfs_parsed_uri = urlsplit(hdfs_path)
     logging.info('Starting the hdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
-    hdfs_client = InsecureClient(url='http://' + hdfs_parsed_uri.netloc)
+    hdfs_client = InsecureClient(url=SCHEME + hdfs_parsed_uri.netloc, user=user)
     logging.info('Started downloading file from HDFS location: {} to local: {}'.format(hdfs_path, local_path))
     local_filepath = hdfs_client.download(hdfs_parsed_uri.path, local_path, overwrite=True)
     duration = str(time.time() - start)
@@ -27,7 +36,7 @@ def _upload(local_path, hdfs_path, user=settings.SHIVA_HADOOP_USER):
     hdfs_parsed_uri = urlsplit(hdfs_path)
     hdfs_parent_dir = hdfs_parsed_uri.path.rpartition('/')[0]
     logging.info('Starting the hdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
-    hdfs_client = InsecureClient(url='http://' + hdfs_parsed_uri.netloc, user=user)
+    hdfs_client = InsecureClient(url=SCHEME + hdfs_parsed_uri.netloc, user=user)
     logging.info('Started uploading file to HDFS location: {} , from local: {}'.format(hdfs_path, local_path))
     logging.info('Creating directory if needed for remote hdfs file upload as :{}'.format(hdfs_parent_dir))
     hdfs_client.makedirs(hdfs_parent_dir)
@@ -44,13 +53,13 @@ def copy_file(src, dest, **kwargs):
         logging.info('Source URI is: {} and Destination URI is: {}'.format(parsed_src_uri.scheme,
                                                                            parsed_dest_uri.scheme))
 
-        if parsed_src_uri.scheme == parsed_dest_uri.scheme == 'webhdfs':
+        if 'hdfs' in parsed_src_uri.scheme and 'hdfs' in parsed_dest_uri.scheme:
             local_path = create_local_dest_path(src)
             _download(src, local_path)
             _upload(local_path, dest, **kwargs)
-        elif parsed_src_uri.scheme == '' and parsed_dest_uri.scheme == 'webhdfs':
+        elif parsed_src_uri.scheme == '' and 'hdfs' in parsed_dest_uri.scheme:
             _upload(src, dest, **kwargs)
-        elif parsed_src_uri.scheme == 'webhdfs' and parsed_dest_uri.scheme == '':
+        elif 'hdfs' in parsed_src_uri.scheme and parsed_dest_uri.scheme == '':
             _download(src, dest)
         else:
             raise NotImplementedError('URI combination is not supported for copy transfer')
