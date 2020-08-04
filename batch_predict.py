@@ -56,7 +56,7 @@ class BatchPredictionJob:
         else:
             credentials = generate_credentials(settings.INPUT_CONNECTOR)
             logging.info("credentials to use: {}".format(credentials))
-        ht.copy_file(remote_path, local_filepath, credentials)
+        ht.copy_file(remote_path, local_filepath, 'download', credentials)
         return local_filepath
 
     def add_request_ids(self, dframe):
@@ -137,7 +137,7 @@ class BatchPredictionJob:
             else:
                 credentials = generate_credentials(settings.INPUT_CONNECTOR)
                 logging.info("credentials to use: {}".format(credentials))
-            ht.copy_file(local_output_filepath, self.remote_output_filepath, credentials)
+            ht.copy_file(local_output_filepath, self.remote_output_filepath, 'upload', credentials)
 
             logging.info('Batch Processing succeeded for filename: {} in {} duration'
                          .format(input_filename, self.calculate_duration(file_process_start)))
