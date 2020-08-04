@@ -31,8 +31,9 @@ class ModelPredictor(object):
 
         Note: Make sure all the needed packages are mentioned in requirements.txt
         """
-
-        pass
+        model = pickle.load(open("models/xgboost_birth_model.pkl", "rb"))
+        x = pd.DataFrame(x, columns=self.feature_list())
+        return model.predict(x)
 
     def predict_proba(self, x):
         """
