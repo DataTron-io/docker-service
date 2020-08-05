@@ -2,6 +2,15 @@ import logging
 from app.settings import settings
 from py4j.java_gateway import JavaGateway
 
+'''
+credentials: {
+        'keytab': Kerberos keytab,
+        'principal': Kerberos principle,
+        'xml_files': Hadoop config files, comma separated string,
+        'user': hadoop user
+    }
+'''
+
 
 class Gateway:
     __instance = None
@@ -9,7 +18,7 @@ class Gateway:
     def __init__(self):
         if Gateway.__instance is None:
             self.gateway = JavaGateway()
-            self.gateway.launch_gateway(classpath=settings.JAVA_GATEWAY_JAR_LOCATION,die_on_exit=True,port=settings.JAVA_GATEWAY_PORT)
+            self.gateway.launch_gateway(classpath=settings.JAVA_GATEWAY_JAR_LOCATION, die_on_exit=True, port=settings.JAVA_GATEWAY_PORT)
 
             logging.info('Successfully launched java gateway for classpath {} at port {}.'
                          .format(settings.JAVA_GATEWAY_JAR_LOCATION, settings.JAVA_GATEWAY_PORT))
@@ -28,27 +37,44 @@ class Gateway:
             Gateway()
         return Gateway.__instance
 
+    @staticmethod
+    def generate_ticket(url, principal, keytab, xmls):
+        gateway_instance = Gateway.get_instance()
+        configuration = gateway_instance.configuration
+        logging.info('Using kerberos for hdfs authentication')
+        configuration.set("fs.defaultFS", url)
+        configuration.set("hadoop.security.authentication", "kerberos")
 
-class InsecureClient:
+        if xmls:
+            logging.info('Adding xml resources {}'.format(xmls))
+            xml_list = xmls.split(',')
+            for xml in xml_list:
+                configuration.addResource(gateway_instance.path(xml))
+            # configuration.set("hadoop.rpc.protection", "privacy")
+        provider_array = gateway_instance.gateway.new_array(
+            gateway_instance.gateway.jvm.org.apache.hadoop.security.SecurityInfo, 1)
+        provider_array[0] = gateway_instance.gateway.jvm.org.apache.hadoop.security.AnnotatedSecurityInfo()
+        gateway_instance.gateway.jvm.org.apache.hadoop.security.SecurityUtil.setSecurityInfoProviders(provider_array)
+        gateway_instance.gateway.jvm.org.apache.hadoop.security.UserGroupInformation.setConfiguration(configuration)
+        logging.info('Generating new ticket')
+        gateway_instance.gateway.jvm.org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(principal,
+                                                                                                         keytab)
+        logging.info('Kerberos authentication successful')
+
+
+class SecureClient:
     """InsecureClient object
     """
-    def __init__(self, url, user):
+
+    def __init__(self, url, user, credentials):
         try:
             gateway_instance = Gateway.get_instance()
             configuration = gateway_instance.configuration
             logging.info('Starting HDFS session for {}'.format(url))
 
-            if settings.USE_KERBEROS:
-                logging.info('Using kerberos for hdfs authentication')
-                configuration.set("fs.defaultFS", url)
-                configuration.set("hadoop.security.authentication", "kerberos")
-                # configuration.set("hadoop.rpc.protection", "privacy")
-                provider_array = gateway_instance.gateway.new_array(gateway_instance.gateway.jvm.org.apache.hadoop.security.SecurityInfo, 1)
-                provider_array[0] = gateway_instance.gateway.jvm.org.apache.hadoop.security.AnnotatedSecurityInfo()
-                gateway_instance.gateway.jvm.org.apache.hadoop.security.SecurityUtil.setSecurityInfoProviders(provider_array)
-                gateway_instance.gateway.jvm.org.apache.hadoop.security.UserGroupInformation.setConfiguration(configuration)
-                gateway_instance.gateway.jvm.org.apache.hadoop.security.UserGroupInformation.loginUserFromKeytab(settings.KERBEROS_USER, settings.KEYTAB_LOCATION)
-                logging.info('Kerberos authentication successful')
+            if credentials:
+                Gateway.generate_ticket(url, credentials.get("principal"), credentials.get("keytab"),
+                                        credentials.get("xml_files"))
                 self.fs = gateway_instance.filesystem.get(configuration)
             else:
                 self.fs = gateway_instance.filesystem.get(gateway_instance.uri(url), gateway_instance.configuration,
@@ -85,10 +111,11 @@ class InsecureClient:
     def content(self, hdfs_path, strict=True):
         try:
             gateway_instance = Gateway.get_instance()
+
             return self.fs.getContentSummary(gateway_instance.path(hdfs_path))
         except Exception as e:
+            logging.info('Exception in getting content for hdfs path {}: {}.'.format(hdfs_path, str(e)))
             if not strict:
                 return None
 
-            logging.info('Error in getting content for hdfs path {}: {}.'.format(hdfs_path, str(e)))
             raise

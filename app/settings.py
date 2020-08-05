@@ -36,11 +36,21 @@ class BaseConfig(object):
     DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'k8s')
     SHIVA_ZOOKEEPER_HOSTS = str_env('SHIVA_ZOOKEEPER_HOSTS', 'datatron-zookeeper-svc:2181')
 
-    USE_WEBHDFS = bool_env('USE_WEBHDFS', True)
+    INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
+    OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
+
+    DATATRON_INTERNAL_STORAGE_USER = str_env('DATATRON_INTERNAL_STORAGE_USER', 'datatron')
+
+    DATATRON_INTERNAL_STORAGE_TYPE = str_env('DATATRON_INTERNAL_STORAGE_TYPE', 'S3')
+
     USE_KERBEROS = bool_env('USE_KERBEROS', False)
 
-    KEYTAB_LOCATION = str_env('KEYTAB_LOCATION', '/home/datatron/shiva')
-    KERBEROS_USER = str_env('KERBEROS_USER', '/home/datatron/shiva')
+    XML_HOST_PATH = str_env('XML_HOST_PATH')
+    XML_MOUNT_POINT = str_env('XML_MOUNT_POINT')
+    HADOOP_XML_FILES = str_env('HADOOP_XML_FILES')
+    KEYTAB_LOCATION = str_env('KEYTAB_LOCATION')
+    KERBEROS_USER = str_env('KERBEROS_USER')
+    USE_WEBHDFS = bool_env('USE_WEBHDFS', True)
 
     JAVA_GATEWAY_JAR_LOCATION = os.path.dirname(os.path.abspath(__file__)) \
                                 + '/../java-gateway-1.0-SNAPSHOT-jar-with-dependencies.jar'
