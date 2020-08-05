@@ -1,4 +1,4 @@
-from app.utils.settings import str_env, int_env
+from app.utils.settings import str_env, int_env, bool_env
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -30,6 +30,26 @@ class BaseConfig(object):
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
     DELIMITER = str_env('DELIMITER', ',')
+
+    INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
+    OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
+
+    DATATRON_INTERNAL_STORAGE_USER = str_env('DATATRON_INTERNAL_STORAGE_USER', 'datatron')
+
+    DATATRON_INTERNAL_STORAGE_TYPE = str_env('DATATRON_INTERNAL_STORAGE_TYPE', 'S3')
+
+    USE_KERBEROS = bool_env('USE_KERBEROS', False)
+
+    XML_HOST_PATH = str_env('XML_HOST_PATH')
+    XML_MOUNT_POINT = str_env('XML_MOUNT_POINT')
+    HADOOP_XML_FILES = str_env('HADOOP_XML_FILES')
+    KEYTAB_LOCATION = str_env('KEYTAB_LOCATION')
+    KERBEROS_USER = str_env('KERBEROS_USER')
+    USE_WEBHDFS = bool_env('USE_WEBHDFS', True)
+
+    JAVA_GATEWAY_JAR_LOCATION = os.path.dirname(os.path.abspath(__file__)) \
+                                + '/../java-gateway-1.0-SNAPSHOT-jar-with-dependencies.jar'
+    JAVA_GATEWAY_PORT = 25333
 
 
 class DevConfig(BaseConfig):
