@@ -9,34 +9,44 @@ try:
 except ImportError:
     from urllib.parse import urlsplit
 
-if settings.USE_WEBHDFS:
-    logging.info('Connecting to webhdfs')
-    from hdfs.client import InsecureClient
-    SCHEME = 'http://'
-else:
-    logging.info('Connecting to hdfs')
-    from .hdfs_client import InsecureClient
-    SCHEME = 'hdfs://'
+from hdfs.client import InsecureClient
+from .hdfs_client import SecureClient
+
+# TODO - Refactor and add kerberos support
 
 
-def _download(hdfs_path, local_path, user=settings.SHIVA_HADOOP_USER):
+def _download(hdfs_path, local_path, credentials):
     start = time.time()
     hdfs_parsed_uri = urlsplit(hdfs_path)
-    logging.info('Starting the hdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
-    hdfs_client = InsecureClient(url=SCHEME + hdfs_parsed_uri.netloc, user=user)
+    user = credentials.pop('user', 'root')
+    if hdfs_parsed_uri.scheme == 'webhdfs':
+        logging.info('Starting the webhdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
+        scheme = 'http://'
+        hdfs_client = InsecureClient(url=scheme + hdfs_parsed_uri.netloc, user=user)
+    else:
+        logging.info('Starting the hdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
+        scheme = 'hdfs://'
+        hdfs_client = SecureClient(scheme + hdfs_parsed_uri.netloc, user, credentials)
     logging.info('Started downloading file from HDFS location: {} to local: {}'.format(hdfs_path, local_path))
     local_filepath = hdfs_client.download(hdfs_parsed_uri.path, local_path, overwrite=True)
     duration = str(time.time() - start)
     logging.info('Finished downloading at local file path: {} in duration : {}'.format(local_filepath, duration))
 
 
-def _upload(local_path, hdfs_path, user=settings.SHIVA_HADOOP_USER):
+def _upload(local_path, hdfs_path, credentials):
     start = time.time()
 
     hdfs_parsed_uri = urlsplit(hdfs_path)
     hdfs_parent_dir = hdfs_parsed_uri.path.rpartition('/')[0]
-    logging.info('Starting the hdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
-    hdfs_client = InsecureClient(url=SCHEME + hdfs_parsed_uri.netloc, user=user)
+    user = credentials.pop('user', 'root')
+    if hdfs_parsed_uri.scheme == 'webhdfs':
+        logging.info('Starting the webhdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
+        scheme = 'http://'
+        hdfs_client = InsecureClient(url=scheme + hdfs_parsed_uri.netloc, user=user)
+    else:
+        logging.info('Starting the hdfs python client at: {}'.format(hdfs_parsed_uri.netloc))
+        scheme = 'hdfs://'
+        hdfs_client = SecureClient(scheme + hdfs_parsed_uri.netloc, user, credentials)
     logging.info('Started uploading file to HDFS location: {} , from local: {}'.format(hdfs_path, local_path))
     logging.info('Creating directory if needed for remote hdfs file upload as :{}'.format(hdfs_parent_dir))
     hdfs_client.makedirs(hdfs_parent_dir)
@@ -45,29 +55,15 @@ def _upload(local_path, hdfs_path, user=settings.SHIVA_HADOOP_USER):
     logging.info('Finished uploading to remote file path: {} in duration : {}'.format(remote_filepath, duration))
 
 
-def copy_file(src, dest, **kwargs):
-    try:
-        parsed_src_uri = urlsplit(src)
-        parsed_dest_uri = urlsplit(dest)
+def copy_file(src, dest, copy_type, credentials):
 
-        logging.info('Source URI is: {} and Destination URI is: {}'.format(parsed_src_uri.scheme,
-                                                                           parsed_dest_uri.scheme))
-
-        if 'hdfs' in parsed_src_uri.scheme and 'hdfs' in parsed_dest_uri.scheme:
-            local_path = create_local_dest_path(src)
-            _download(src, local_path)
-            _upload(local_path, dest, **kwargs)
-        elif parsed_src_uri.scheme == '' and 'hdfs' in parsed_dest_uri.scheme:
-            _upload(src, dest, **kwargs)
-        elif 'hdfs' in parsed_src_uri.scheme and parsed_dest_uri.scheme == '':
-            _download(src, dest)
-        else:
-            raise NotImplementedError('URI combination is not supported for copy transfer')
-
-        logging.info('Finished transferring file from source: {} to destination: {}'.format(src, dest))
-    except Exception as e:
-        logging.error('Unable to complete copy file task, Error: {}'.format(str(e)))
-        raise RuntimeError('Failed to transfer file from src: {} to dest: {}'.format(src, dest))
+    logging.info('Initiating HDFS copy file API with copy type: {}'.format(copy_type))
+    if copy_type == 'upload':
+        _upload(src, dest, credentials)
+    elif copy_type == 'download':
+        _download(src, dest, credentials)
+    else:
+        raise ValueError('Invalid src + dest combination supplied for HDFS')
 
 
 def create_local_dest_path(source_path):
