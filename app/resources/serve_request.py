@@ -33,7 +33,7 @@ class ServePredictRequest(Resource):
             y = predictor.predict(x)
             result['prediction']["nest"] = {}
             result['prediction']['nest']['datetime'] = datetime.now()
-            result['prediction']["nest"] = {'outputs': y[0].item()}
+            result['prediction']["nest"]['outputs'] = y[0].item()
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
