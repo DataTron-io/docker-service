@@ -5,7 +5,7 @@ from flask_restful import Resource
 from flask import request, make_response
 from app.settings import settings
 from app.ml_model import predictor
-
+from app.resources.helper import fix_structure
 
 class ServePredictRequest(Resource):
     def post(self):
@@ -27,10 +27,11 @@ class ServePredictRequest(Resource):
             }
 
             x_dict = request_data['data']
-            feature_list = predictor.feature_list()
-            x = np.array([[x_dict[feature_name] for feature_name in feature_list]])
+            x_dict = fix_structure(x_dict)
+            x = np.array(x_dict)
             y = predictor.predict(x)
-            result['prediction'] = {'outputs': y[0].item()}
+            result['prediction']["nest"] = {}
+            result['prediction']["nest"] = {'outputs': y[0].item()}
 
             logging.info('Successfully fetched the model prediction result')
             status_msg = "PublisherPredictionSuccess"
