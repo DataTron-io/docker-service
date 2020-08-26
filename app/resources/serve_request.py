@@ -29,7 +29,7 @@ class ServePredictRequest(Resource):
             x_dict = request_data['data']
             x_dict = fix_structure(x_dict)
             logging.info("Input flattened data {}".format(x_dict))
-            x = np.array(x_dict)
+            x = np.array([x_dict])
             y = predictor.predict(x)
             result['prediction']["nest"] = {}
             result['prediction']['nest']['datetime'] = datetime.now()
