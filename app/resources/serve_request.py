@@ -6,7 +6,7 @@ from flask import request, make_response
 from app.settings import settings
 from app.ml_model import predictor
 from app.resources.helper import fix_structure
-
+from datetime import datetime
 class ServePredictRequest(Resource):
     def post(self):
         request_data = request.get_json()
@@ -31,6 +31,7 @@ class ServePredictRequest(Resource):
             x = np.array(x_dict)
             y = predictor.predict(x)
             result['prediction']["nest"] = {}
+            result['prediction']['nest']['datetime'] = datetime.now()
             result['prediction']["nest"] = {'outputs': y[0].item()}
 
             logging.info('Successfully fetched the model prediction result')
