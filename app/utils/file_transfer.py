@@ -19,7 +19,7 @@ def generate_credentials_for_internal_storage():
 
 def generate_credentials(connector):
     connector_details = json.loads(connector)
-    if not connector_details["connector"]["configurations"]["credentials"]:
+    if "credentials" not in connector_details["connector"]["configurations"]:
         return {
             'user': connector_details["connector"]["configurations"].get("user", "datatron")
         }
