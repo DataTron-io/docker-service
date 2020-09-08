@@ -33,7 +33,7 @@ class BatchPredictionJob:
 
     def _create_local_path(self, remote_path, local_prefix):
         logging.info(
-            'Creating local filepath for the remote file: {} with prefix: {}'.format(remote_path, local_prefix))
+            'Creating local filepath for the remote ile: {} with prefix: {}'.format(remote_path, local_prefix))
         remote_filename = remote_path.rpartition('/')[2]
 
         local_dir = os.path.join(settings.DATATRON_ROOT_LOCATION, self.workspace_slug, local_prefix)
