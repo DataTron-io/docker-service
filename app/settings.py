@@ -45,6 +45,10 @@ class BaseConfig(object):
     HADOOP_XML_FILES = str_env('HADOOP_XML_FILES')
     KEYTAB_LOCATION = str_env('KEYTAB_LOCATION')
     KERBEROS_USER = str_env('KERBEROS_USER')
+    AWS_ACCESS_KEY_ID = str_env('AWS_ACCESS_KEY_ID', '')
+    AWS_SECRET_ACCESS_KEY = str_env('AWS_SECRET_ACCESS_KEY', '')
+    S3_ENDPOINT_URL = str_env('S3_ENDPOINT_URL', None)
+    S3_SSL = bool_env('S3_SSL', True)
     USE_WEBHDFS = bool_env('USE_WEBHDFS', True)
 
     JAVA_GATEWAY_JAR_LOCATION = os.path.dirname(os.path.abspath(__file__)) \
