@@ -1,11 +1,10 @@
-from app.ml_model import predictor
 import json
 import logging
 import pickle
 import pandas as pd
 
 
-class ModelPredictor(object):
+class BatchPredictor(object):
     """
     This class is modified by the user to upload the model into the Datatron platform.
     """
@@ -16,41 +15,42 @@ class ModelPredictor(object):
         """
         Required for offline predictions
 
-        :param: x : A list or list of list of input vector
-        :return: single prediction
+        :param: x : Individual line of data from the input file
+        :return: Data Object which is used by the model to make a prediction
 
-        Example (Copy and paste the 3 lines to test it out):
-        Step 1. Load the model into python. Model artifacts are stored in "models" folder
-        model = pickle.load(open("models/xgboost_birth_model.pkl", "rb"))
+        Examples:
 
-        Step 2. Prepare the data to be predicted. This needs to be modified based on how the data was sent in the
-        request
-        x= pd.DataFrame(x, columns = self.feature_list())
+        1. Input : 43,56,67,4,Honda
+           Output: [43, 56, 67, 4, "Honda"]
+        
+        2. Input : Dhruv,81,Male,321,546,Test
+           Output: 
+                {
+                    "name": "Dhruv",
+                    "Age": 81,
+                    "Test": {
+                        "Nested_Object": "Test"
+                    }
+                    "Sex": "Male",
+                    "Height": 546,
+                    "Weight": 321,
+                }
 
-        Step 3. Use the uploaded model to predict/ infer from the input data
-        return model.predict(x)
+        3. Input : {"preview":true,"offset":0,"result":{"Name":"mamycita","_geo":"7.13,120.193"}}
+           Ouput : 
 
-        Note: Make sure all the needed packages are mentioned in requirements.txt
         """
 
         pass
-
-    def predict_proba(self, x):
+    def output_format(self, datatron_request_id, x):
         """
-        This function is implemented if a probability is required instead of the class value for classification.
-
-        :param: x: A list or list of list of input vector
-        :return: A dict of predict probability of the model for
-         each feature in the features list
+        Optional: Generate format of output for the request string
+        Args:
+            datatron_request_id ([type]): [description]
+            x ([type]): [description]
         """
-        pass
 
-    def feature_list(self):
-        """
-        Required for online and offline predictions. This function binds the request data to the actual feature names.
 
-        :param: None
-        :return: A list of features
-        """
-        return ['Black','Married','Boy','MomAge','MomSmoke','CigsPerDay','MomWtGain','Visit','MomEdLevel']
+
+
 
