@@ -4,7 +4,8 @@ import time
 import logging
 import pandas as pd
 from app.utils import hdfs_transfer as ht
-from app.ml_model import predictor
+import gzip
+from app.ml_model import batch_predictor, predictor
 from app.settings import settings
 from app.utils.file_transfer import generate_credentials_for_internal_storage, generate_credentials
 
@@ -59,14 +60,9 @@ class BatchPredictionJob:
         ht.copy_file(remote_path, local_filepath, 'download', credentials)
         return local_filepath
 
-    def add_request_ids(self, dframe):
-        logging.info('Starting to update the current frame with the datatron requests id')
-        if 'datatron_request_id' in dframe:
-            logging.info('Datatron requests id already present, skipping generation of new ids')
-            return dframe
-        dframe['datatron_request_id'] = [self._generate_trace_id() for _ in range(len(dframe))]
-        logging.info('Finished updating the current frame with the datatron requests id')
-        return dframe
+    def add_request_id(self, result):
+        output = self._generate_trace_id() + ',' + str(result) + "\n"
+        return output
 
     def process_batch(self):
         logging.info('Starting the batch process for the batch id: {}'.format(self.batch_id))
@@ -82,55 +78,32 @@ class BatchPredictionJob:
 
             compress = True if '.gz' in local_output_filepath.rpartition('/')[2] else False
             is_first_frame = True
+            is_first_line = True
 
-            for each_chunk in pd.read_csv(filepath_or_buffer=local_input_filepath,
-                                          chunksize=self.chunk_size,
-                                          delimiter=self.delimiter):
+            current_chunk_size = 0
+            output_list = []
 
-                logging.info('Starting to process new chunk for the batch file')
+            with open(local_input_filepath) as f:
+                for line in f:
 
-                chunk_process_start = time.time()
-                requestid_add_start = time.time()
-                each_chunk = self.add_request_ids(each_chunk)
-                each_chunk = each_chunk.set_index('datatron_request_id')
 
-                logging.info("Finished adding trace ids for current frame in : {}".
-                             format(self.calculate_duration(requestid_add_start)))
+                    # Handle if request ID already exists
 
-                model_predict_start = time.time()
-                logging.info('Calling predict batch on the model: {} , for current frame'.format(model_key))
+                    model_input = batch_predictor.transform(line)
+                    output = predictor.predict(model_input)
+                    result = self.add_request_id(output)
+                    current_chunk_size += len(result)
+                    output_list.append(result)
 
-                feature_list = predictor.feature_list()
-                x_list = each_chunk[feature_list].values
-                output = predictor.predict(x_list)
-                predict_df = pd.DataFrame(output, columns=['outputs'])
-                predict_df.index = each_chunk.index.values
-
-                logging.info('Model: {} finished the prediction for the current frame in: {}'
-                             .format(model_key, self.calculate_duration(model_predict_start)))
-
-                predict_merge_start = time.time()
-                predict_df = predict_df.add_prefix(model_key + '__')
-                each_chunk = each_chunk.merge(predict_df, how='outer', left_index=True, right_index=True)
-
-                logging.info('Finished merging the prediction result with existing base frame in: {}'
-                             .format(self.calculate_duration(predict_merge_start)))
-                chunk_append_start = time.time()
-
-                if compress:
-                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', compression='gzip',
-                                      encoding='utf-8', header=is_first_frame, sep=self.delimiter)
-                else:
-                    each_chunk.to_csv(path_or_buf=local_output_filepath, mode='a', encoding='utf-8',
-                                      header=is_first_frame, sep=self.delimiter)
-
-                is_first_frame = False
-
-                logging.info('Finished appending results to output file in: {}'
-                             .format(self.calculate_duration(chunk_append_start)))
-
-                logging.info("Finished processing current frame in : {}"
-                             .format(self.calculate_duration(chunk_process_start)))
+                    if current_chunk_size >= self.chunk_size:
+                        if compress:
+                            with gzip.open(local_output_filepath, "a") as out_file:
+                                out_file.writelines(output_list)
+                        else:
+                            with open(local_output_filepath, "a") as out_file:
+                                out_file.writelines(output_list)
+                        output_list = []
+                        current_chunk_size = 0
 
             if not settings.OUTPUT_CONNECTOR:
                 credentials = generate_credentials_for_internal_storage()
