@@ -1,7 +1,9 @@
 import os
 import uuid
 import time
+import json
 import logging
+import argparse
 import pandas as pd
 from app.settings import settings
 from datatron.governor import MetricsManager, MetricsAggregator
@@ -29,13 +31,12 @@ class BatchMetricsJob:
         self.job_id = settings.JOB_ID
         self.workspace_slug = settings.WORKSPACE_SLUG
         self.metric_args = settings.METRIC_ARGS
-        self.learn_type = settings.LEARN_TYPE
         self.delimiter = chr(int(settings.DELIMITER, 16))
-        self.prediction_filepath = settings.PREDICTION_FILEPATH
+        self.prediction_filepath = settings.REMOTE_INPUT_FILEPATH
         self.feedback_files = settings.FEEDBACK_FILEPATH_LIST
         self.chunk_size = min(self._calculate_byte_row(self.prediction_filepath), settings.CHUNK_SIZE)
         self.prediction_filename = self.prediction_file.rpartition('/')[2]
-        self.metrics_manager = MetricsManager(self.metric_args, METRICS_DIR, self.job_id, self.prediction_filename)
+        self.metrics_manager = MetricsManager(self.metric_args, METRICS_DIR)
 
     @staticmethod
     def _calculate_byte_row(filepath):
@@ -56,12 +57,12 @@ class BatchMetricsJob:
         return _chunksize
 
     @classmethod
-    def save_metrics(file_name, metric_vals, job_id):
+    def save_metrics(cls, file_name, metric_vals, job_id):
         try:
             with open(file_name, "w") as fopen:
                 json.dump(metric_vals, fopen)
         except FileNotFoundError as e:
-            logging.info(f"Metrics for matadata calculated for job-id {job_id} could not be saved due to the following error: {str(e)}")
+            logging.info(f"Metrics for matadata calculated for job-id {job_id} could not be saved due to file {file_name} not being found.")
 
     @log_time_taken(f"Calculating batch metrics for prediction file: {self.prediction_filepath} for job-id: {self.job_id}")
     def process_batch(self):
@@ -91,10 +92,10 @@ class AggregateMetricsJob:
         self.metrics_final_file = settings.METRICS_FILE
         self.metrics_aggregator = MetricsAggregator(self.metrics_param, self.metadata_dir)
 
-    def aggregate_metrics(self, metric_params_dict):
+    def aggregate_metrics(self):
         try:
             for metadata_filename in os.listdir(self.metadata_dir):
-                metadata_filepath = os.path.join(cur_metric_dir, metadata_filename)
+                metadata_filepath = os.path.join(self.metadata_dir, metadata_filename)
                 try:
                     with open(metadata_filepath, "r") as fopen:
                         metric_metadata = json.load(fopen)
@@ -107,4 +108,16 @@ class AggregateMetricsJob:
 
     def save_metrics(self):
         metric_vals = self.metrics_aggregator.fetch_metric_values()
-        BatchMetricsJob.save_metrics(self.metrics_final_file, metric_vals,self.job_id)
+        BatchMetricsJob.save_metrics(self.metrics_final_file, metric_vals)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Commandline for batch metrics')
+    parser.add_argument('-c', '--calc', action='store_true')
+    args = parser.parse_args()
+
+    if args.c:
+        batch_metrics_job = BatchMetricsJob()
+        batch_metrics_job.process_batch()
+    else:
+        agg_metrics_job = AggregateMetricsJob()
+        agg_metrics_job.aggregate_metrics()

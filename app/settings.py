@@ -1,5 +1,6 @@
-from app.utils.settings import str_env, int_env, bool_env
+from app.utils.settings import str_env, int_env, bool_env, json_env
 import os
+import json
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -17,6 +18,7 @@ class BaseConfig(object):
     DATATRON_ROOT_LOCATION = str_env('DATATRON_ROOT_LOCATION', '/home/datatron')
     PUBLISHER_SLUG = str_env('PUBLISHER_SLUG', 'dt-publisher-sample')
     MODEL_LEARN_TYPE = str_env('MODEL_LEARN_TYPE', 'model_learn_type_sample')
+    METRIC_ARGS = json_env('METRIC_ARGS')
     MODEL_NAME = str_env('MODEL_NAME', 'dnn_model')
     MODEL_VERSION = str_env('MODEL_VERSION', 'model_version_sample')
     MODEL_VERSION_SLUG = str_env('MODEL_VERSION_SLUG', 'model_version_slug_sample')
@@ -25,7 +27,10 @@ class BaseConfig(object):
     WORKSPACE_SLUG = str_env('WORKSPACE_SLUG', 'workspace_slug_sample')
     DEPLOYMENT_ID = str_env('DEPLOYMENT_ID', 'deployment_id_sample')
     BATCH_ID = str_env('BATCH_ID', 'batch_id_sample')
+    JOB_ID = str_env('JOB_ID', 'job_id_sample')
+    METRICS_FILE = str_env('METRICS_FILE', f'metrics-{JOB_ID}.json')
     REMOTE_INPUT_FILEPATH = str_env('REMOTE_INPUT_FILEPATH', '/home/datatron/shiva')
+    REMOTE_FEEDBACK_FILEPATH_LIST = str_env('FEEDBACK_FILEPATH_LIST', ['/home/datatron/shiva'])
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
