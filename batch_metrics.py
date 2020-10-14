@@ -82,42 +82,6 @@ class BatchMetricsJob:
         except FileNotFoundError as e:
             logging.error(f"Metrics processing for batch id {self.job_id} failed due to error: {str(e)}.")
 
-
-class AggregateMetricsJob:
-    
-    def __init__(self):
-        self.job_id = settings.JOB_ID
-        self.metadata_dir = os.path.join(METRICS_DIR, self.job_id)
-        self.metrics_param = settings.METRIC_ARGS
-        self.metrics_final_file = settings.METRICS_FILE
-        self.metrics_aggregator = MetricsAggregator(self.metrics_param, self.metadata_dir)
-
-    def aggregate_metrics(self):
-        try:
-            for metadata_filename in os.listdir(self.metadata_dir):
-                metadata_filepath = os.path.join(self.metadata_dir, metadata_filename)
-                try:
-                    with open(metadata_filepath, "r") as fopen:
-                        metric_metadata = json.load(fopen)
-                    self.metrics_aggregator.aggregate_metadata(metric_metadata)
-                except FileNotFoundError as e:
-                    logging.info(f"Couldn't find file: {metadata_filename} for job-id: {self.job_id} to read metadata. Skipping this file.")
-            
-        except FileNotFoundError as e:
-            logging.info(f"Could not access metadata directory at {self.metadata_dir}. Metrics weren't aggregated for job-id: {self.job_id}.")
-
-    def save_metrics(self):
-        metric_vals = self.metrics_aggregator.fetch_metric_values()
-        BatchMetricsJob.save_metrics(self.metrics_final_file, metric_vals)
-
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Commandline for batch metrics')
-    parser.add_argument('-c', '--calc', action='store_true')
-    args = parser.parse_args()
-
-    if args.c:
-        batch_metrics_job = BatchMetricsJob()
-        batch_metrics_job.process_batch()
-    else:
-        agg_metrics_job = AggregateMetricsJob()
-        agg_metrics_job.aggregate_metrics()
+    batch_metrics_job = BatchMetricsJob()
+    batch_metrics_job.process_batch()
