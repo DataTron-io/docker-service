@@ -28,7 +28,6 @@ class BaseConfig(object):
     DEPLOYMENT_ID = str_env('DEPLOYMENT_ID', 'deployment_id_sample')
     BATCH_ID = str_env('BATCH_ID', 'batch_id_sample')
     JOB_ID = str_env('JOB_ID', 'job_id_sample')
-    METRICS_FILE = str_env('METRICS_FILE', f'metrics-{JOB_ID}.json')
     REMOTE_INPUT_FILEPATH = str_env('REMOTE_INPUT_FILEPATH', '/home/datatron/shiva')
     REMOTE_FEEDBACK_FILEPATH_LIST = str_env('FEEDBACK_FILEPATH_LIST', ['/home/datatron/shiva'])
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
