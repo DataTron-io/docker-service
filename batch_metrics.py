@@ -10,9 +10,6 @@ from datatron.governor import MetricsManager, MetricsAggregator
 
 logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
 
-# Change this to a mounted folder path & add this to settings potentially
-METRICS_DIR = "/tmp/metrics/"
-
 def log_time_taken(msg):
     def timer(method):
         def calc_timer(*args, **kwargs):
@@ -36,7 +33,7 @@ class BatchMetricsJob:
         self.feedback_files = settings.FEEDBACK_FILEPATH_LIST
         self.chunk_size = min(self._calculate_byte_row(self.prediction_filepath), settings.CHUNK_SIZE)
         self.prediction_filename = self.prediction_file.rpartition('/')[2]
-        self.metrics_manager = MetricsManager(self.metric_args, METRICS_DIR)
+        self.metrics_manager = MetricsManager(self.metric_args, settings.METRICS_DIR)
 
     @staticmethod
     def _calculate_byte_row(filepath):
