@@ -1,6 +1,7 @@
 "Helpers for parsing environment variables in settings files."
 
 from os import getenv
+import json
 
 
 def bool_env(var_name, default=False):
@@ -56,3 +57,10 @@ def str_env(var_name, default=''):
     This has the same arguments as bool_env.
     """
     return getenv(var_name, default)
+
+def json_env(var_name):
+    """Get an environment variable as a json.
+
+    This has the same arguments as bool_env.
+    """
+    return json.loads(str_env(var_name, '{}'))
