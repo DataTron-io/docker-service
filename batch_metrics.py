@@ -33,7 +33,10 @@ class BatchMetricsJob:
         self.feedback_files = settings.FEEDBACK_FILEPATH_LIST
         self.chunk_size = min(self._calculate_byte_row(self.prediction_filepath), settings.CHUNK_SIZE)
         self.prediction_filename = self.prediction_file.rpartition('/')[2]
-        self.metrics_manager = MetricsManager(self.metric_args, settings.METRICS_DIR)
+        metrics_intermediate_dir = os.path.join(settings.METRICS_DIR, self.job_id)
+        os.mkdir(metrics_intermediate_dir)
+        self.metrics_manager = MetricsManager(self.metric_args, self.metrics_intermediate_dir)
+
 
     @staticmethod
     def _calculate_byte_row(filepath):
@@ -55,8 +58,9 @@ class BatchMetricsJob:
 
     @classmethod
     def save_metrics(cls, file_name, metric_vals, job_id):
+        file_path = os.path.join(os.path.join(settings.METRICS_DIR, job_id), file_name)
         try:
-            with open(file_name, "w") as fopen:
+            with open(file_path, "w") as fopen:
                 json.dump(metric_vals, fopen)
         except FileNotFoundError as e:
             logging.info(f"Metrics for matadata calculated for job-id {job_id} could not be saved due to file {file_name} not being found.")
