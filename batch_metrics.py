@@ -6,7 +6,7 @@ import logging
 import argparse
 import pandas as pd
 from app.settings import settings
-from datatron.governor import MetricsManager, MetricsAggregator
+from app.governor.datatron-metrics.metrics_factory import MetricsManager
 
 logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
 
