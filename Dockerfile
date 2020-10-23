@@ -26,7 +26,7 @@ RUN yum -y update && yum install -y yum-utils && yum groupinstall -y development
     && python3.6 -m pip wheel . \
     && python3.6 -m pip install ${APP_DIR}/datatron_common/discovery/ \
     && rm -rf ${APP_DIR}/datatron_common/ \
-    && apt-get autoremove git -y \
+    && yum autoremove git -y \
     && cd ${APP_DIR}/app \
     && git clone -b sankalp-metrics https://${GITHUB_ACCESS_TOKEN}@github.com/DataTron-io/governor/
 
