@@ -8,7 +8,7 @@ import pandas as pd
 from app.utils import hdfs_transfer as ht
 from app.utils.file_transfer import generate_credentials_for_internal_storage, generate_credentials
 from app.settings import settings
-from app.governor.datatron_metrics.metrics_factory import MetricsManager
+from app.governor.datatron_metrics import MetricsManager
 
 logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
 
