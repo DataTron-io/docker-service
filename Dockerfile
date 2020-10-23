@@ -19,17 +19,18 @@ RUN yum -y update && yum install -y yum-utils && yum groupinstall -y development
     && yum install -y python36u python36u-pip python36u-devel \
     && yum install git \
     && yum install -y java-1.8.0-openjdk-headless \
+    && python3.6 -m pip install -U pip \
     && python3.6 -m pip install -r ${APP_DIR}/requirements.txt \
     && git clone -b master https://${GITHUB_ACCESS_TOKEN}@github.com/DataTron-io/datatron_common/ \
     && cd ${APP_DIR}/datatron_common/transfer \
-    && python -m pip wheel . \
-    && python -m pip install ${APP_DIR}/datatron_common/transfer/ \
+    && python3.6 -m pip wheel . \
+    && python3.6 -m pip install ${APP_DIR}/datatron_common/transfer/ \
     && cd ${APP_DIR}/datatron_common/discovery \
-    && python -m pip wheel . \
-    && python -m pip install ${APP_DIR}/datatron_common/discovery/ \
+    && python3.6 -m pip wheel . \
+    && python3.6 -m pip install ${APP_DIR}/datatron_common/discovery/ \
     && cd ${APP_DIR}/datatron_common/ml_parser \
-    && python -m pip wheel . \
-    && python -m pip install ${APP_DIR}/datatron_common/ml_parser/ \
+    && python3.6 -m pip wheel . \
+    && python3.6 -m pip install ${APP_DIR}/datatron_common/ml_parser/ \
     && rm -rf ${APP_DIR}/datatron_common/ \
     && apt-get autoremove git -y \
     && cd ${APP_DIR}/app \
