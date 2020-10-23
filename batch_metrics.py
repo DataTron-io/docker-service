@@ -2,6 +2,7 @@ import os
 import uuid
 import time
 import json
+import yaml
 import logging
 import argparse
 import pandas as pd
@@ -26,6 +27,7 @@ def log_time_taken(msg):
 class BatchMetricsJob:
 
     def __init__(self):
+        logging.info("Received batch metrics job for batch-id: {}".format(settings.BATCH_ID))
         self.batch_id = settings.BATCH_ID
         self.job_id = settings.JOB_ID
         self.workspace_slug = settings.WORKSPACE_SLUG
@@ -112,13 +114,13 @@ class BatchMetricsJob:
     def process_batch(self):
         chunksize = 1e6 # Make this a variable in the settings or determine dynamically
         try:
-            local_prediction_filepath = self.fetch_remote_file(remote_path=self.remote_input_filepath, local_prefix='input', connector=settings.INPUT_CONNECTOR)
+            local_prediction_filepath = self.fetch_remote_file(remote_path=self.remote_input_filepath, local_prefix='input', connector=yaml.load(settings.INPUT_CONNECTOR))
             logging.info("Successfully received prediction file from {}".format(local_prediction_filepath))
             for prediction_chunk in pd.read_csv(local_prediction_filepath, 
                                                 chunksize=chunksize, 
                                                 delimiter=self.delimiter):
                 for feedback_filepath in self.feedback_filepaths:
-                    local_feedback_filepath = self.fetch_remote_file(remote_path=feedback_filepath, local_prefix='output', connector=settings.OUTPUT_CONNECTOR)
+                    local_feedback_filepath = self.fetch_remote_file(remote_path=feedback_filepath, local_prefix='output', connector=yaml.load(settings.OUTPUT_CONNECTOR))
                     logging.info("Successfully received feedback file from {}".format(local_prediction_filepath))
                     for feedback_chunk in pd.read_csv(local_feedback_filepath, 
                                                     chunksize=chunksize,
