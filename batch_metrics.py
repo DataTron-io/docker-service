@@ -67,14 +67,14 @@ class BatchMetricsJob:
 
         return local_filepath
 
-    def fetch_remote_file(self, remote_path, local_prefix):
+    def fetch_remote_file(self, remote_path, local_prefix, connector=None):
         logging.info(
             'Getting the remote file for batch job from : {}, locally at: {}'.format(remote_path, local_prefix))
         local_filepath = self._create_local_path(remote_path, local_prefix)
-        if not settings.INPUT_CONNECTOR:
+        if not connector:
             credentials = generate_credentials_for_internal_storage()
         else:
-            credentials = generate_credentials(settings.INPUT_CONNECTOR)
+            credentials = generate_credentials(connector)
             logging.info("credentials to use: {}".format(credentials))
         ht.copy_file(remote_path, local_filepath, 'download', credentials)
         return local_filepath
@@ -112,13 +112,13 @@ class BatchMetricsJob:
     def process_batch(self):
         chunksize = 1e6 # Make this a variable in the settings or determine dynamically
         try:
-            local_prediction_filepath = self.fetch_remote_file(remote_path=self.remote_input_filepath, local_prefix='input')
+            local_prediction_filepath = self.fetch_remote_file(remote_path=self.remote_input_filepath, local_prefix='input', connector=settings.INPUT_CONNECTOR)
             logging.info("Successfully received prediction file from {}".format(local_prediction_filepath))
             for prediction_chunk in pd.read_csv(local_prediction_filepath, 
                                                 chunksize=chunksize, 
                                                 delimiter=self.delimiter):
                 for feedback_filepath in self.feedback_filepaths:
-                    local_feedback_filepath = self.fetch_remote_file(remote_path=feedback_filepath)
+                    local_feedback_filepath = self.fetch_remote_file(remote_path=feedback_filepath, local_prefix='output', connector=settings.OUTPUT_CONNECTOR)
                     logging.info("Successfully received feedback file from {}".format(local_prediction_filepath))
                     for feedback_chunk in pd.read_csv(local_feedback_filepath, 
                                                     chunksize=chunksize,
