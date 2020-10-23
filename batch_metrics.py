@@ -9,6 +9,9 @@ import pandas as pd
 from app.utils import hdfs_transfer as ht
 from app.utils.file_transfer import generate_credentials_for_internal_storage, generate_credentials
 from app.settings import settings
+import utils
+import requests
+from datatron.common.discovery import DatatronDiscovery
 from app.governor.datatron_metrics import MetricsManager
 
 logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
@@ -41,7 +44,41 @@ class BatchMetricsJob:
         os.mkdir(metrics_intermediate_dir)
         self.metrics_manager = MetricsManager(self.metric_args, self.metrics_intermediate_dir)
 
+    def _request_to_dictator(self, request_type, subroute, payload=None):
+        logging.info('Requesting dictator for request: {}, subroute: {}, payload: {}'.format(request_type,
+                                                                                             subroute,
+                                                                                             str(payload)))
+        dsd_client = self._get_service_discovery_client()
+        dictator_url = dsd_client.get_single_instance(service_path='dictator', pick_random=True)
+        header = {'Content-Type': 'application/json'}
+        full_url = dictator_url + subroute
 
+        if request_type == 'get':
+            result = utils.retry_apis._retry_call(requests.get, url=full_url, headers=header)
+        elif request_type == 'put':
+            result = utils.retry_apis._retry_call(requests.put, url=full_url, headers=header, data=json.dumps(payload))
+        else:
+            raise ValueError('Inavlid request type initiated for dictator')
+
+        dsd_client.stop()
+
+        if result.status_code != 200:
+            # TODO: In future, map the status code to check against from env or dictator constants
+            raise Exception('Failed to process metadata with dictator service')
+
+        result_data = json.loads(result.content.decode('utf-8'))
+        logging.info('Received result data for subroute: {} as : {}'.format(subroute, str(result_data)))
+
+        return result_data
+
+    def _update_status_to_dictator(self, status, status_meta):
+        update_status_payload = {
+            'status': status,
+            'status_meta': status_meta
+        }
+        self._request_to_dictator('put',
+                                  subroute='/api/batch_prediction/{}'.format(self.batch_id),
+                                  payload=update_status_payload)
     @staticmethod
     def _calculate_byte_row(filepath):
         partial_pd = pd.read_csv(filepath_or_buffer=filepath, nrows=100)
@@ -114,6 +151,8 @@ class BatchMetricsJob:
     def process_batch(self):
         chunksize = 1e6 # Make this a variable in the settings or determine dynamically
         try:
+            running_status_meta = {'status_code': 202, 'status_msg': 'BatchScoringLiteMetricsInProgress'}
+            self._update_status_to_dictator(status='RUNNING', status_meta=running_status_meta)
             local_prediction_filepath = self.fetch_remote_file(remote_path=self.remote_input_filepath, local_prefix='input', connector=yaml.load(settings.INPUT_CONNECTOR))
             logging.info("Successfully received prediction file from {}".format(local_prediction_filepath))
             for prediction_chunk in pd.read_csv(local_prediction_filepath, 
@@ -134,8 +173,28 @@ class BatchMetricsJob:
             metrics_file = os.path.join(self.metrics_dir, self.job_id, self.prediction_filepath)
             metric_values = self.metrics_manager.fetch_metric_values()
             self.save_metrics(metrics_file, metric_values, self.job_id)
+            batch_status = "SUCCESS"
+            status_msg = "BatchMetricsScoringLiteSuccess"
+            status_code = 200
         except FileNotFoundError as e:
             logging.error(f"Metrics processing for batch id {self.job_id} failed due to error: {str(e)}.")
+            batch_status = "FAILED"
+            status_msg = "BatchMetricsScoringLiteFAILED due to file not found"
+            status_code = 500
+        except Exception as e:
+            logging.error("The batch {} couldn't be processed due to the following errors: {}".format(self.batch_id, str(e)))
+            batch_status = "FAILED"
+            status_msg = "BatchMetricsScoringLiteFAILED"
+            status_code = 500
+        finally:
+            status_meta = dict()
+            status_meta["status_code"] = status_code
+            status_meta["status_msg"] = status_msg
+            logging.info('Batch predict job finished with status msg: {}, status code: {}'.format(status_msg,
+                                                                                                  str(status_code)))
+        self._update_status_to_dictator(status=batch_status, status_meta=status_meta)
+        logging.info('Finished the batch job with exit status: {}'.format(batch_status))
+
 
 if __name__ == '__main__':
     batch_metrics_job = BatchMetricsJob()
