@@ -16,17 +16,6 @@ from app.governor.datatron_metrics import MetricsManager
 
 logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
 
-def log_time_taken(msg):
-    def timer(method):
-        def calc_timer(*args, **kwargs):
-            start = time.time()
-            res = method(*args, **kwargs)
-            duration = (time.time() - start)
-            print(f"{msg} took {duration} seconds.")
-            return res
-        return calc_timer
-    return timer
-
 class BatchMetricsJob:
 
     def __init__(self):
@@ -147,7 +136,7 @@ class BatchMetricsJob:
         except FileNotFoundError as e:
             logging.info(f"Metrics for matadata calculated for job-id {job_id} could not be saved due to file {file_name} not being found.")
 
-    @log_time_taken(f"Calculating batch metrics for prediction file: {self.prediction_filepath} for job-id: {self.job_id}")
+    # @log_time_taken(f"Calculating batch metrics for prediction file: {self.prediction_filepath} for job-id: {self.job_id}")
     def process_batch(self):
         chunksize = 1e6 # Make this a variable in the settings or determine dynamically
         try:
@@ -159,6 +148,7 @@ class BatchMetricsJob:
                                                 chunksize=chunksize, 
                                                 delimiter=self.delimiter):
                 for feedback_filepath in self.feedback_filepaths:
+                    cur_feed_time = time.time()
                     local_feedback_filepath = self.fetch_remote_file(remote_path=feedback_filepath, local_prefix='output', connector=yaml.load(settings.OUTPUT_CONNECTOR))
                     logging.info("Successfully received feedback file from {}".format(local_prediction_filepath))
                     for feedback_chunk in pd.read_csv(local_feedback_filepath, 
@@ -170,6 +160,7 @@ class BatchMetricsJob:
                         except KeyError as e:
                             logging.info(f"Could not join datatron_id column in either the prediction file: {local_prediction_filepath} or feedback file: {local_feedback_filepath} due to error: {str(e)}.")
                     self.delete_local_file(local_feedback_filepath)
+                    logging.info("Finished calculating metrics on feedback_file: {} in {} seconds".format(feedback_filepath, self.calculate_duration(cur_feed_time)))
             metrics_file = os.path.join(self.metrics_dir, self.job_id, self.prediction_filepath)
             metric_values = self.metrics_manager.fetch_metric_values()
             self.save_metrics(metrics_file, metric_values, self.job_id)
