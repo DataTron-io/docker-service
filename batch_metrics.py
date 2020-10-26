@@ -153,7 +153,7 @@ class BatchMetricsJob:
                 self._update_status_to_dictator(status='RUNNING', status_meta=running_status_meta)
             except:
                 logging.info("Could not set dictator status for job to running.")
-            local_prediction_filepath = self.fetch_remote_file(remote_path=self.prediction_filepath, local_prefix='input', connector=yaml.load(settings.INPUT_CONNECTOR))
+            local_prediction_filepath = self.fetch_remote_file(remote_path=self.prediction_filepath, local_prefix='input', connector=settings.INPUT_CONNECTOR)
             self.chunk_size = min(self._calculate_byte_row(local_prediction_filepath), settings.CHUNK_SIZE)
             logging.info("Successfully received prediction file from {}".format(local_prediction_filepath))
             for prediction_chunk in pd.read_csv(local_prediction_filepath, 
@@ -161,7 +161,7 @@ class BatchMetricsJob:
                                                 delimiter=self.delimiter):
                 for feedback_filepath in self.feedback_filepaths:
                     cur_feed_time = time.time()
-                    local_feedback_filepath = self.fetch_remote_file(remote_path=feedback_filepath, local_prefix='output', connector=yaml.load(settings.OUTPUT_CONNECTOR))
+                    local_feedback_filepath = self.fetch_remote_file(remote_path=feedback_filepath, local_prefix='output', connector=settings.OUTPUT_CONNECTOR)
                     logging.info("Successfully received feedback file from {}".format(local_prediction_filepath))
                     for feedback_chunk in pd.read_csv(local_feedback_filepath, 
                                                     chunksize=chunksize,
