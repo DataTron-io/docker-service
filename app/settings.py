@@ -35,7 +35,7 @@ class BaseConfig(object):
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
     DELIMITER = str_env('DELIMITER', ',')
-
+    DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'zk')
     INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
     OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
 
