@@ -179,12 +179,12 @@ class BatchMetricsJob:
             status_msg = "BatchMetricsScoringLiteSuccess"
             status_code = 200
         except FileNotFoundError as e:
-            logging.error(f"Metrics processing for batch id {self.job_id} failed due to error: {str(e)}.")
+            logging.error(f"Metrics processing for batch id {self.job_id} failed due to error: {str(e.with_traceback)}.")
             batch_status = "FAILED"
             status_msg = "BatchMetricsScoringLiteFAILED due to file not found"
             status_code = 500
         except Exception as e:
-            logging.error("The batch {} couldn't be processed due to the following errors: {}".format(self.batch_id, str(e)))
+            logging.error("The batch {} couldn't be processed due to the following errors: {}".format(self.batch_id, str(e.with_traceback)))
             batch_status = "FAILED"
             status_msg = "BatchMetricsScoringLiteFAILED"
             status_code = 500
