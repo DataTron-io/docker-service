@@ -6,6 +6,7 @@ import yaml
 import logging
 import argparse
 import traceback
+import numpy as np
 import pandas as pd
 from app.utils import hdfs_transfer as ht
 from app.utils.file_transfer import generate_credentials_for_internal_storage, generate_credentials
@@ -168,7 +169,7 @@ class BatchMetricsJob:
                                                     delimiter=self.delimiter):
                         try:
                             joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "feedback_id", how="inner")
-                            self.metrics_manager.batch_update(joined_df["actual_value"].to_numpy(), joined_df["prediction"].to_numpy()) # VERIFY COLUMN NAMES
+                            self.metrics_manager.batch_update(np.array(joined_df["actual_value"]), np.array(joined_df["prediction"]))
                         except KeyError as e:
                             logging.info(f"Could not join datatron_id column in either the prediction file: {local_prediction_filepath} or feedback file: {local_feedback_filepath} due to error: {str(e)}.")
                     self.delete_local_file(local_feedback_filepath)
