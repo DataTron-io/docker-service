@@ -38,6 +38,8 @@ class BaseConfig(object):
     DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'zk')
     INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
     OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
+    SHIVA_ZOOKEEPER_HOSTS = str_env('SHIVA_ZOOKEEPER_HOSTS',
+                                    '10.0.1.5:2181, 10.0.1.6:2181, 10.0.1.7:2181')
 
     DATATRON_INTERNAL_STORAGE_USER = str_env('DATATRON_INTERNAL_STORAGE_USER', 'datatron')
 
