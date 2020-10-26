@@ -27,7 +27,6 @@ class BatchMetricsJob:
         self.delimiter = chr(int(settings.DELIMITER, 16))
         self.prediction_filepath = settings.REMOTE_INPUT_FILEPATH
         self.feedback_filepaths = settings.REMOTE_FEEDBACK_FILEPATH_LIST
-        self.chunk_size = min(self._calculate_byte_row(self.prediction_filepath), settings.CHUNK_SIZE)
         self.prediction_filename = self.prediction_file.rpartition('/')[2]
         metrics_intermediate_dir = os.path.join(settings.METRICS_DIR, self.job_id)
         os.mkdir(metrics_intermediate_dir)
@@ -143,6 +142,7 @@ class BatchMetricsJob:
             running_status_meta = {'status_code': 202, 'status_msg': 'BatchScoringLiteMetricsInProgress'}
             self._update_status_to_dictator(status='RUNNING', status_meta=running_status_meta)
             local_prediction_filepath = self.fetch_remote_file(remote_path=self.remote_input_filepath, local_prefix='input', connector=yaml.load(settings.INPUT_CONNECTOR))
+            self.chunk_size = min(self._calculate_byte_row(local_prediction_filepath), settings.CHUNK_SIZE)
             logging.info("Successfully received prediction file from {}".format(local_prediction_filepath))
             for prediction_chunk in pd.read_csv(local_prediction_filepath, 
                                                 chunksize=chunksize, 
