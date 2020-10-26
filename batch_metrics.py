@@ -31,6 +31,14 @@ class BatchMetricsJob:
         self.metrics_intermediate_dir = os.path.join(settings.METRICS_DIR, self.job_id)
         os.mkdir(self.metrics_intermediate_dir)
         self.metrics_manager = MetricsManager(self.metric_args)
+    
+    @staticmethod
+    def _get_service_discovery_client():
+        dsd_discovery_client = DatatronDiscovery(discovery_type=settings.DISCOVERY_TYPE,
+                                                 services_type='infrastructure',
+                                                 hosts=settings.SHIVA_ZOOKEEPER_HOSTS,
+                                                 caching=False)
+        return dsd_discovery_client
 
     def _request_to_dictator(self, request_type, subroute, payload=None):
         logging.info('Requesting dictator for request: {}, subroute: {}, payload: {}'.format(request_type,
