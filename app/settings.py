@@ -30,7 +30,7 @@ class BaseConfig(object):
     BATCH_ID = str_env('BATCH_ID', 'batch_id_sample')
     JOB_ID = str_env('JOB_ID', 'job_id_sample')
     REMOTE_INPUT_FILEPATH = str_env('REMOTE_INPUT_FILEPATH', '/home/datatron/shiva')
-    REMOTE_FEEDBACK_FILEPATH_LIST = str_env('FEEDBACK_FILEPATH_LIST', ['/home/datatron/shiva'])
+    REMOTE_FEEDBACK_FILEPATH_LIST = json_env('FEEDBACK_FILEPATH_LIST', ['/home/datatron/shiva'])
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)

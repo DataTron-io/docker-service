@@ -26,7 +26,7 @@ class BatchMetricsJob:
         self.metric_args = settings.METRIC_ARGS
         self.delimiter = chr(int(settings.DELIMITER, 16))
         self.prediction_filepath = settings.REMOTE_INPUT_FILEPATH
-        self.feedback_filepaths = settings.FEEDBACK_FILEPATH_LIST
+        self.feedback_filepaths = settings.REMOTE_FEEDBACK_FILEPATH_LIST
         self.chunk_size = min(self._calculate_byte_row(self.prediction_filepath), settings.CHUNK_SIZE)
         self.prediction_filename = self.prediction_file.rpartition('/')[2]
         metrics_intermediate_dir = os.path.join(settings.METRICS_DIR, self.job_id)
