@@ -58,9 +58,9 @@ def str_env(var_name, default=''):
     """
     return getenv(var_name, default)
 
-def json_env(var_name):
+def json_env(var_name, default=''):
     """Get an environment variable as a json.
 
     This has the same arguments as bool_env.
     """
-    return json.loads(str_env(var_name, '{}'))
+    return json.loads(str_env(var_name, default))
