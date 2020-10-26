@@ -30,7 +30,7 @@ class BatchMetricsJob:
         self.prediction_filename = self.prediction_filepath.rpartition('/')[2]
         self.metrics_intermediate_dir = os.path.join(settings.METRICS_DIR, self.job_id)
         os.mkdir(self.metrics_intermediate_dir)
-        self.metrics_manager = MetricsManager(self.metric_args, self.metrics_intermediate_dir)
+        self.metrics_manager = MetricsManager(self.metric_args)
 
     def _request_to_dictator(self, request_type, subroute, payload=None):
         logging.info('Requesting dictator for request: {}, subroute: {}, payload: {}'.format(request_type,
