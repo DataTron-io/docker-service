@@ -18,7 +18,7 @@ class BaseConfig(object):
     DATATRON_ROOT_LOCATION = str_env('DATATRON_ROOT_LOCATION', '/home/datatron')
     PUBLISHER_SLUG = str_env('PUBLISHER_SLUG', 'dt-publisher-sample')
     MODEL_LEARN_TYPE = str_env('MODEL_LEARN_TYPE', 'model_learn_type_sample')
-    METRIC_ARGS = json_env('METRIC_ARGS', json.dumps('{}'))
+    METRIC_ARGS = json_env('METRIC_ARGS', json.loads('{}'))
     METRICS_DIR = str_env('METRICS_DIR', '/tmp/metrics')
     MODEL_NAME = str_env('MODEL_NAME', 'dnn_model')
     MODEL_VERSION = str_env('MODEL_VERSION', 'model_version_sample')
