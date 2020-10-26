@@ -9,7 +9,7 @@ import pandas as pd
 from app.utils import hdfs_transfer as ht
 from app.utils.file_transfer import generate_credentials_for_internal_storage, generate_credentials
 from app.settings import settings
-import utils
+from utils.retry_apis import _retry_call
 import requests
 from datatron.common.discovery import DatatronDiscovery
 from app.governor.datatron_metrics import MetricsManager
@@ -51,9 +51,9 @@ class BatchMetricsJob:
         full_url = dictator_url + subroute
 
         if request_type == 'get':
-            result = utils.retry_apis._retry_call(requests.get, url=full_url, headers=header)
+            result = _retry_call(requests.get, url=full_url, headers=header)
         elif request_type == 'put':
-            result = utils.retry_apis._retry_call(requests.put, url=full_url, headers=header, data=json.dumps(payload))
+            result = _retry_call(requests.put, url=full_url, headers=header, data=json.dumps(payload))
         else:
             raise ValueError('Inavlid request type initiated for dictator')
 
@@ -148,7 +148,10 @@ class BatchMetricsJob:
         chunksize = 1e6 # Make this a variable in the settings or determine dynamically
         try:
             running_status_meta = {'status_code': 202, 'status_msg': 'BatchScoringLiteMetricsInProgress'}
-            self._update_status_to_dictator(status='RUNNING', status_meta=running_status_meta)
+            try:
+                self._update_status_to_dictator(status='RUNNING', status_meta=running_status_meta)
+            except:
+                logging.info("Could not set dictator status for job to running.")
             local_prediction_filepath = self.fetch_remote_file(remote_path=self.remote_input_filepath, local_prefix='input', connector=yaml.load(settings.INPUT_CONNECTOR))
             self.chunk_size = min(self._calculate_byte_row(local_prediction_filepath), settings.CHUNK_SIZE)
             logging.info("Successfully received prediction file from {}".format(local_prediction_filepath))
