@@ -19,7 +19,7 @@ logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
 class BatchMetricsJob:
 
     def __init__(self):
-        logging.info("Received batch metrics job for batch-id: {}".format(settings.BATCH_ID))
+        logging.info("Received batch metrics job for batch-id: {} with metric-args: {}".format(settings.BATCH_ID, settings.METRIC_ARGS))
         self.batch_id = settings.BATCH_ID
         self.job_id = settings.JOB_ID
         self.workspace_slug = settings.WORKSPACE_SLUG
