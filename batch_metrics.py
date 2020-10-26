@@ -5,6 +5,7 @@ import json
 import yaml
 import logging
 import argparse
+import traceback
 import pandas as pd
 from app.utils import hdfs_transfer as ht
 from app.utils.file_transfer import generate_credentials_for_internal_storage, generate_credentials
@@ -179,15 +180,19 @@ class BatchMetricsJob:
             status_msg = "BatchMetricsScoringLiteSuccess"
             status_code = 200
         except FileNotFoundError as e:
-            logging.error(f"Metrics processing for batch id {self.job_id} failed due to error: {str(e.with_traceback)}.")
+            logging.error("Metrics processing for batch id {} failed due to error: {}".format(self.batch_id, str(e)))
             batch_status = "FAILED"
             status_msg = "BatchMetricsScoringLiteFAILED due to file not found"
             status_code = 500
+            traceback.print_stack()
+            traceback.print_exc()
         except Exception as e:
-            logging.error("The batch {} couldn't be processed due to the following errors: {}".format(self.batch_id, str(e.with_traceback)))
+            logging.error("The batch {} couldn't be processed due to the following errors: {}".format(self.batch_id, str(e)))
             batch_status = "FAILED"
             status_msg = "BatchMetricsScoringLiteFAILED"
             status_code = 500
+            traceback.print_stack()
+            traceback.print_exc()
         finally:
             status_meta = dict()
             status_meta["status_code"] = status_code
