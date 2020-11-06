@@ -3,40 +3,44 @@ from app.settings import settings
 
 
 def generate_credentials_for_internal_storage():
-    if not settings.USE_KERBEROS:
-        return {
+    if settings.DATATRON_INTERNAL_STORAGE_TYPE == 'HDFS':
+        if not settings.USE_KERBEROS:
+            return {
+                'user': settings.DATATRON_INTERNAL_STORAGE_USER
+            }
+        creds = {
+            'keytab': settings.KEYTAB_LOCATION,
+            'principal': settings.KERBEROS_USER,
+            'xml_files': settings.HADOOP_XML_FILES,
             'user': settings.DATATRON_INTERNAL_STORAGE_USER
         }
-    creds = {
-        'keytab': settings.KEYTAB_LOCATION,
-        'principal': settings.KERBEROS_USER,
-        'xml_files': settings.HADOOP_XML_FILES,
-        'user': settings.DATATRON_INTERNAL_STORAGE_USER
-    }
-    replace_host_path(creds)
+        replace_host_path(creds)
+    else:
+        creds = {
+            'accessKeyId': settings.AWS_ACCESS_KEY_ID,
+            'secretAccessKey': settings.AWS_SECRET_ACCESS_KEY
+        }
+        if settings.S3_ENDPOINT_URL:
+            creds['use_ssl'] = settings.S3_SSL
     return creds
 
 
 def generate_credentials(connector):
     connector_details = json.loads(connector)
-
-    if connector_details["connector"]["type_name"] == "s3":
+    if "hdfs" in connector_details["connector"]["type_name"]:
+        if "credentials" not in connector_details["connector"]["configurations"]:
+            return {
+                'user': connector_details["connector"]["configurations"].get("user", "datatron")
+            }
         creds = {
-            'accessKeyId': connector_details["connector"]["accessKeyId"],
-            'secretAccessKey': connector_details["connector"]["secretAccessKey"]            
+            'keytab': connector_details["connector"]["configurations"]["credentials"]["keytab"],
+            'principal': connector_details["connector"]["configurations"]["credentials"]["principal"],
+            'xml_files': connector_details["connector"]["configurations"]["credentials"].get("xmls", ""),
+            'user': connector_details["connector"]["configurations"]["user"]
         }
-        return creds
-    if "credentials" not in connector_details["connector"]["configurations"]:
-        return {
-            'user': connector_details["connector"]["configurations"].get("user", "datatron")
-        }
-    creds = {
-        'keytab': connector_details["connector"]["configurations"]["credentials"]["keytab"],
-        'principal': connector_details["connector"]["configurations"]["credentials"]["principal"],
-        'xml_files': connector_details["connector"]["configurations"]["credentials"].get("xmls", ""),
-        'user': connector_details["connector"]["configurations"]["user"]
-    }
-    replace_host_path(creds)
+        replace_host_path(creds)
+    else:
+        creds = connector_details["connector"]["configurations"]["credentials"]
     return creds
 
 

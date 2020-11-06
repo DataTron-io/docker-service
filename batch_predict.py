@@ -4,6 +4,8 @@ import time
 import logging
 import pandas as pd
 from app.utils import hdfs_transfer as ht
+import datatron.common.transfer as dt
+
 from app.ml_model import predictor
 from app.settings import settings
 from app.utils.file_transfer import generate_credentials_for_internal_storage, generate_credentials
@@ -56,7 +58,7 @@ class BatchPredictionJob:
         else:
             credentials = generate_credentials(settings.INPUT_CONNECTOR)
             logging.info("credentials to use: {}".format(credentials))
-        ht.copy_file(remote_path, local_filepath, 'download', credentials)
+        dt.authenticated_file_copy(remote_path, local_filepath, credentials, None)
         return local_filepath
 
     def add_request_ids(self, dframe):
@@ -137,7 +139,7 @@ class BatchPredictionJob:
             else:
                 credentials = generate_credentials(settings.INPUT_CONNECTOR)
                 logging.info("credentials to use: {}".format(credentials))
-            ht.copy_file(local_output_filepath, self.remote_output_filepath, 'upload', credentials)
+            dt.authenticated_file_copy(local_output_filepath, remote_output_filepath, None, credentials)
 
             logging.info('Batch Processing succeeded for filename: {} in {} duration'
                          .format(input_filename, self.calculate_duration(file_process_start)))
