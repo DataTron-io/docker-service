@@ -19,6 +19,13 @@ def generate_credentials_for_internal_storage():
 
 def generate_credentials(connector):
     connector_details = json.loads(connector)
+
+    if connector_details["connector"]["type_name"] == "s3":
+        creds = {
+            'accessKeyId': connector_details["connector"]["accessKeyId"],
+            'secretAccessKey': connector_details["connector"]["secretAccessKey"]            
+        }
+        return creds
     if "credentials" not in connector_details["connector"]["configurations"]:
         return {
             'user': connector_details["connector"]["configurations"].get("user", "datatron")
