@@ -139,7 +139,7 @@ class BatchPredictionJob:
             else:
                 credentials = generate_credentials(settings.INPUT_CONNECTOR)
                 logging.info("credentials to use: {}".format(credentials))
-            dt.authenticated_file_copy(local_output_filepath, remote_output_filepath, None, credentials)
+            dt.authenticated_file_copy(local_output_filepath, self.remote_output_filepath, None, credentials)
 
             logging.info('Batch Processing succeeded for filename: {} in {} duration'
                          .format(input_filename, self.calculate_duration(file_process_start)))
