@@ -1,25 +1,20 @@
 "Helpers for parsing environment variables in settings files."
 
 from os import getenv
-import json
 
 
 def bool_env(var_name, default=False):
     """
     Get an environment variable coerced to a boolean value.
-
     Example:
         Bash:
             $ export SOME_VAL=True
-
-        settings.py:
+        batch_settings.py:
             SOME_VAL = bool_env('SOME_VAL', False)
-
     Arguments:
         var_name: The name of the environment variable.
         default: The default to use if `var_name` is not specified in the
                  environment.
-
     Returns: `var_name` or `default` coerced to a boolean using the following
         rules:
             "False", "false" or "" => False
@@ -35,7 +30,6 @@ def bool_env(var_name, default=False):
 
 def float_env(var_name, default=0.0):
     """Get an environment variable coerced to a float value.
-
     This has the same arguments as bool_env. If a value cannot be coerced to a
     float, a ValueError will be raised.
     """
@@ -44,7 +38,6 @@ def float_env(var_name, default=0.0):
 
 def int_env(var_name, default=0):
     """Get an environment variable coerced to an integer value.
-
     This has the same arguments as bool_env. If a value cannot be coerced to an
     integer, a ValueError will be raised.
     """
@@ -53,15 +46,6 @@ def int_env(var_name, default=0):
 
 def str_env(var_name, default=''):
     """Get an environment variable as a string.
-
     This has the same arguments as bool_env.
     """
     return getenv(var_name, default)
-
-
-def json_env(var_name, default=''):
-    """Get an environment variable as a json.
-
-    This has the same arguments as bool_env.
-    """
-    return json.loads(str_env(var_name, default))

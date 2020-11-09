@@ -18,8 +18,8 @@ class BaseConfig(object):
     DATATRON_ROOT_LOCATION = str_env('DATATRON_ROOT_LOCATION', '/home/datatron')
     PUBLISHER_SLUG = str_env('PUBLISHER_SLUG', 'dt-publisher-sample')
     MODEL_LEARN_TYPE = str_env('MODEL_LEARN_TYPE', 'model_learn_type_sample')
-    METRIC_ARGS = json_env('METRIC_ARGS')
-    METRICS_DIR = str_env('METRICS_DIR', '/var/datatron-scoring-lite-metrics')
+    METRIC_ARGS = json_env('METRIC_ARGS', json.loads('{}'))
+    METRICS_DIR = str_env('METRICS_DIR', '/tmp/metrics')
     MODEL_NAME = str_env('MODEL_NAME', 'dnn_model')
     MODEL_VERSION = str_env('MODEL_VERSION', 'model_version_sample')
     MODEL_VERSION_SLUG = str_env('MODEL_VERSION_SLUG', 'model_version_slug_sample')
@@ -30,14 +30,16 @@ class BaseConfig(object):
     BATCH_ID = str_env('BATCH_ID', 'batch_id_sample')
     JOB_ID = str_env('JOB_ID', 'job_id_sample')
     REMOTE_INPUT_FILEPATH = str_env('REMOTE_INPUT_FILEPATH', '/home/datatron/shiva')
-    REMOTE_FEEDBACK_FILEPATH_LIST = str_env('FEEDBACK_FILEPATH_LIST', ['/home/datatron/shiva'])
+    REMOTE_FEEDBACK_FILEPATH_LIST = json_env('FEEDBACK_FILEPATH_LIST', json.dumps(['/home/datatron/shiva']))
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
     DELIMITER = str_env('DELIMITER', ',')
-
+    DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'zk')
     INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
     OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
+    SHIVA_ZOOKEEPER_HOSTS = str_env('SHIVA_ZOOKEEPER_HOSTS',
+                                    '10.0.1.5:2181, 10.0.1.6:2181, 10.0.1.7:2181')
 
     DATATRON_INTERNAL_STORAGE_USER = str_env('DATATRON_INTERNAL_STORAGE_USER', 'datatron')
 
