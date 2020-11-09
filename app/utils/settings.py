@@ -58,6 +58,7 @@ def str_env(var_name, default=''):
     """
     return getenv(var_name, default)
 
+
 def json_env(var_name, default=''):
     """Get an environment variable as a json.
 

@@ -203,7 +203,6 @@ class BatchMetricsJob:
         self._update_status_to_dictator(status=batch_status, status_meta=status_meta)
         logging.info('Finished the batch job with exit status: {}'.format(batch_status))
 
-
 if __name__ == '__main__':
     batch_metrics_job = BatchMetricsJob()
     batch_metrics_job.process_batch()
