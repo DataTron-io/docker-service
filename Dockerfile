@@ -12,7 +12,7 @@ ENV PYTHONPATH "${PYTHONPATH}:${APP_DIR}"
 
 ENV DATATRON_ROOT_LOCATION "${APP_DIR}"
 
-RUN yum -y update && yum install -y yum-utils && yum groupinstall -y development \
+RUN yum -y update && yum install -y yum-utils nmap vim && yum groupinstall -y development \
     && yum install -y  https://repo.ius.io/ius-release-el7.rpm \
     && yum install -y python36u python36u-pip python36u-devel \
     && yum install -y java-1.8.0-openjdk-headless \
