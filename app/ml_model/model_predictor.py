@@ -20,24 +20,24 @@ class ModelPredictor(object):
         return dsd_discovery_client
 
     def predict(self, json_data, proba=False):
-        dsd_client = self._get_service_discovery_client()
-        dictator_url = dsd_client.get_single_instance(service_path='dictator', pick_random=True)
-        full_url = dictator_url + '/api/publishers/deployments/{}'.format(settings.DEPLOYMENT_ID)
-        deployment_response = requests.get(url=full_url)
-        dsd_client.stop()
-        deploy_data = deployment_response.json()
-        features = deploy_data['result']['model']['features']
+        #dsd_client = self._get_service_discovery_client()
+        #dictator_url = dsd_client.get_single_instance(service_path='dictator', pick_random=True)
+        #full_url = dictator_url + '/api/publishers/deployments/{}'.format(settings.DEPLOYMENT_ID)
+        #deployment_response = requests.get(url=full_url)
+        #dsd_client.stop()
+        #deploy_data = deployment_response.json()
+        #features = deploy_data['result']['model']['features']
 
-        validated_features = {}
-        for feature in features:
-            if feature in json_data:
-                validated_features[feature] = json_data[feature]
+        #validated_features = {}
+        #for feature in features:
+        #    if feature in json_data:
+        #        validated_features[feature] = json_data[feature]
 
-        logging.info('Validated Features: {}'.format(validated_features))
+        #logging.info('Validated Features: {}'.format(validated_features))
 
         endpoint = settings.PROBA_ENDPOINT if proba else settings.PREDICT_ENDPOINT
         port = settings.APIPORT
         if endpoint[0] != '/':
             endpoint = '/' + endpoint
-        response = requests.post("http://localhost:" + port + endpoint, json=validated_features)
+        response = requests.post("http://localhost:" + port + endpoint, json=json_data)
         return response
