@@ -20,10 +20,6 @@ RUN yum -y update && yum install -y yum-utils && yum groupinstall -y development
     && yum install -y java-1.8.0-openjdk-headless \
     && yum install -y git \
     && python3.6 -m pip install -U pip \
-    && git clone -b master https://${GITHUB_ACCESS_TOKEN}@github.com/DataTron-io/datatron_common/ \
-    && cd ${APP_DIR}/datatron_common/discovery \
-    && python3.6 -m pip wheel . \
-    && python3.6 -m pip install ${APP_DIR}/datatron_common/discovery/ \
     && python3.6 -m pip install -r ${APP_DIR}/requirements.txt
 
 EXPOSE 80

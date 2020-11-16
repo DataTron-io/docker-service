@@ -4,7 +4,7 @@ import pickle
 import pandas as pd
 from app.settings import settings
 import requests
-from datatron.common.discovery import DatatronDiscovery
+#from datatron.common.discovery import DatatronDiscovery
 
 
 class ModelPredictor(object):
@@ -12,12 +12,12 @@ class ModelPredictor(object):
     def __init__(self):
         pass
 
-    def _get_service_discovery_client(self):
-        dsd_discovery_client = DatatronDiscovery(discovery_type=settings.DISCOVERY_TYPE,
-                                                 services_type='infrastructure',
-                                                 hosts=settings.SHIVA_ZOOKEEPER_HOSTS,
-                                                 caching=False)
-        return dsd_discovery_client
+    #def _get_service_discovery_client(self):
+        #dsd_discovery_client = DatatronDiscovery(discovery_type=settings.DISCOVERY_TYPE,
+                                                 #services_type='infrastructure',
+                                                 #hosts=settings.SHIVA_ZOOKEEPER_HOSTS,
+                                                 #caching=False)
+        #return dsd_discovery_client
 
     def predict(self, json_data, proba=False):
         #dsd_client = self._get_service_discovery_client()
