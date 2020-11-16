@@ -1,7 +1,5 @@
 #!/bin/bash
 
 docker build \
- --build-arg DEVPI_SERVER_ACCESS=$DEVPI_SERVER_ACCESS \
- --build-arg DEVPI_SERVER_IP=$DEVPI_SERVER_IP \
- --build-arg DEVPI_SERVER_PORT=$DEVPI_SERVER_PORT \
+ --build-arg GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN \
  -t $IMAGE_NAME .
