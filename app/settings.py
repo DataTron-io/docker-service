@@ -1,4 +1,4 @@
-from app.utils.settings import str_env, int_env, bool_env
+from app.utils.settings import str_env, int_env, bool_env, json_env
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -30,6 +30,8 @@ class BaseConfig(object):
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
     DELIMITER = str_env('DELIMITER', ',')
+    WINDOW_STORE_DIR = json_env('WINDOW_STORE_DIR', "/var/lib/monitoring")
+    DICTATOR_BASE_URL = 'http://datatron-dictator-svc/api'
 
     INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
     OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
