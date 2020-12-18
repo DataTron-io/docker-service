@@ -126,13 +126,13 @@ class BatchMetricsJob:
 
     def find_optimal_chunksize(self, filepath):
         filename = filepath.rpartition('/')[2]
-        logging.info('Calculating the optimal chunksize for the provided file: {}'.format(filename))
+        logging.debug('Calculating the optimal chunksize for the provided file: {}'.format(filename))
         bytes_per_row = self._calculate_byte_row(filepath)
-        logging.info('Average mem usage per row: {} byte'.format(str(bytes_per_row)))
+        logging.debug('Average mem usage per row: {} byte'.format(str(bytes_per_row)))
         optimal_rows_for_mem = int(self.ALLOWED_MAX_BYTES / (2*bytes_per_row)) # Multiply by 2 for feedback files
-        logging.info('Optimal chuck size for memory of {} byte: {}'.format(str(self.ALLOWED_MAX_BYTES), str(optimal_rows_for_mem)))
+        logging.debug('Optimal chuck size for memory of {} byte: {}'.format(str(self.ALLOWED_MAX_BYTES), str(optimal_rows_for_mem)))
         _chunksize = self.DEFAULT_CHUNK if (bytes_per_row * self.DEFAULT_CHUNK) < self.ALLOWED_MAX_BYTES else optimal_rows_for_mem
-        logging.info('Estimated optimal chunksize is {}'.format(str(_chunksize)))
+        logging.debug('Estimated optimal chunksize is {}'.format(str(_chunksize)))
         return _chunksize
 
     def save_metrics(self, file_name, metric_vals, job_id):
@@ -141,7 +141,7 @@ class BatchMetricsJob:
             with open(file_path, "w") as fopen:
                 json.dump(metric_vals, fopen)
         except FileNotFoundError as e:
-            logging.info(f"Metrics for matadata calculated for job-id {job_id} could not be saved due to file {file_name} not being found.")
+            logging.error(f"Metrics for matadata calculated for job-id {job_id} could not be saved due to file {file_name} not being found.")
 
     # @log_time_taken(f"Calculating batch metrics for prediction file: {self.prediction_filepath} for job-id: {self.job_id}")
     def process_batch(self):
@@ -158,14 +158,14 @@ class BatchMetricsJob:
                 logging.info("Could not set dictator status for job to running.")
             local_prediction_filepath = self.fetch_remote_file(remote_path=self.prediction_filepath, local_prefix='input', connector=settings.INPUT_CONNECTOR)
             self.chunk_size = min(self._calculate_byte_row(local_prediction_filepath), settings.CHUNK_SIZE)
-            logging.info("Successfully received prediction file from {}".format(local_prediction_filepath))
+            logging.debug("Successfully received prediction file from {}".format(local_prediction_filepath))
             for prediction_chunk in pd.read_csv(local_prediction_filepath, 
                                                 chunksize=chunksize, 
                                                 delimiter=self.delimiter):
                 for feedback_filepath in self.feedback_filepaths:
                     cur_feed_time = time.time()
                     local_feedback_filepath = self.fetch_remote_file(remote_path=feedback_filepath, local_prefix='output', connector=settings.OUTPUT_CONNECTOR)
-                    logging.info("Successfully received feedback file from {}".format(local_prediction_filepath))
+                    logging.debug("Successfully received feedback file from {}".format(local_prediction_filepath))
                     for feedback_chunk in pd.read_csv(local_feedback_filepath, 
                                                     chunksize=chunksize,
                                                     delimiter=self.delimiter):
@@ -173,12 +173,12 @@ class BatchMetricsJob:
                             joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "feedback_id", how="inner")
                             self.metrics_manager.batch_update(np.array(joined_df["actual_value"]), np.array(joined_df["prediction"]))
                         except KeyError as e:
-                            logging.info(f"Could not join datatron_id column in either the prediction file: {local_prediction_filepath} or feedback file: {local_feedback_filepath} due to error: {str(e)}.")
+                            logging.error(f"Could not join datatron_id column in either the prediction file: {local_prediction_filepath} or feedback file: {local_feedback_filepath} due to error: {str(e)}.")
                     self.delete_local_file(local_feedback_filepath)
-                    logging.info("Finished calculating metrics on feedback_file: {} in {} seconds".format(feedback_filepath, self.calculate_duration(cur_feed_time)))
+                    logging.debug("Finished calculating metrics on feedback_file: {} in {} seconds".format(feedback_filepath, self.calculate_duration(cur_feed_time)))
             metrics_file = "{}.json".format(self.batch_id)
             metric_values = self.metrics_manager.fetch_metric_values()
-            logging.info("Metric values for batch {} are {}".format(self.batch_id, metric_values))
+            logging.debug("Metric values for batch {} are {}".format(self.batch_id, metric_values))
             self.save_metrics(metrics_file, metric_values, self.job_id)
             batch_status = "SUCCESS"
             status_msg = "BatchMetricsScoringLiteSuccess"
