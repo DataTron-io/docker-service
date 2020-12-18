@@ -18,7 +18,7 @@ class BaseConfig(object):
     DATATRON_ROOT_LOCATION = str_env('DATATRON_ROOT_LOCATION', '/home/datatron')
     PUBLISHER_SLUG = str_env('PUBLISHER_SLUG', 'dt-publisher-sample')
     MODEL_LEARN_TYPE = str_env('MODEL_LEARN_TYPE', 'model_learn_type_sample')
-    METRIC_ARGS = json_env('METRIC_ARGS', json.loads('{}'))
+    METRIC_ARGS = json_env('METRIC_ARGS', '{}')
     METRICS_DIR = str_env('METRICS_DIR', '/tmp/metrics')
     MODEL_NAME = str_env('MODEL_NAME', 'dnn_model')
     MODEL_VERSION = str_env('MODEL_VERSION', 'model_version_sample')
@@ -34,7 +34,7 @@ class BaseConfig(object):
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
-    DELIMITER = str_env('DELIMITER', ',')
+    DELIMITER = str_env('DELIMITER', '0x2c') # default is ','
     DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'zk')
     INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
     OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
