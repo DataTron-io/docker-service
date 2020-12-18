@@ -31,9 +31,7 @@ class BatchMetricsJob:
         self.feedback_filepaths = settings.REMOTE_FEEDBACK_FILEPATH_LIST
         self.prediction_filename = self.prediction_filepath.rpartition('/')[2]
         self.metrics_intermediate_dir = os.path.join(settings.METRICS_DIR, self.job_id)
-        if not os.path.exists(self.metrics_intermediate_dir):
-            os.mkdir(self.metrics_intermediate_dir)
-        self.metrics_manager = MetricsManager(self.metric_args)
+        os.makedirs(self.metrics_intermediate_dir, exist_ok=True)
     
     @staticmethod
     def _get_service_discovery_client():
@@ -76,7 +74,7 @@ class BatchMetricsJob:
             'status_meta': status_meta
         }
         self._request_to_dictator('put',
-                                  subroute='/api/batch_prediction/{}'.format(self.batch_id),
+                                  subroute='/api/scorer_job/{}'.format(self.batch_id),
                                   payload=update_status_payload)
     @staticmethod
     def _calculate_byte_row(filepath):
@@ -148,7 +146,11 @@ class BatchMetricsJob:
     # @log_time_taken(f"Calculating batch metrics for prediction file: {self.prediction_filepath} for job-id: {self.job_id}")
     def process_batch(self):
         chunksize = 1e6 # Make this a variable in the settings or determine dynamically
+        if self.metric_args == {}:
+            logging.info("No metric were calculated as metric arguments were not provided.")
+            return
         try:
+            self.metrics_manager = MetricsManager(self.metric_args)
             running_status_meta = {'status_code': 202, 'status_msg': 'BatchScoringLiteMetricsInProgress'}
             try:
                 self._update_status_to_dictator(status='RUNNING', status_meta=running_status_meta)
@@ -176,6 +178,7 @@ class BatchMetricsJob:
                     logging.info("Finished calculating metrics on feedback_file: {} in {} seconds".format(feedback_filepath, self.calculate_duration(cur_feed_time)))
             metrics_file = "{}.json".format(self.batch_id)
             metric_values = self.metrics_manager.fetch_metric_values()
+            logging.info("Metric values for batch {} are {}".format(self.batch_id, metric_values))
             self.save_metrics(metrics_file, metric_values, self.job_id)
             batch_status = "SUCCESS"
             status_msg = "BatchMetricsScoringLiteSuccess"
