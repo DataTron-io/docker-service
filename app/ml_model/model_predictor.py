@@ -9,7 +9,7 @@ class ModelPredictor(object):
     This class is modified by the user to upload the model into the Datatron platform.
     """
     def __init__(self):
-        pass
+        self.model =  pickle.load(open("models/model.pkl", "rb"))
 
     def predict(self, x):
         """
@@ -17,22 +17,11 @@ class ModelPredictor(object):
 
         :param: x : A list or list of list of input vector
         :return: single prediction
-
-        Example (Copy and paste the 3 lines to test it out):
-        Step 1. Load the model into python. Model artifacts are stored in "models" folder
-        model = pickle.load(open("models/xgboost_birth_model.pkl", "rb"))
-
-        Step 2. Prepare the data to be predicted. This needs to be modified based on how the data was sent in the
-        request
-        x= pd.DataFrame(x, columns = self.feature_list())
-
-        Step 3. Use the uploaded model to predict/ infer from the input data
-        return model.predict(x)
-
-        Note: Make sure all the needed packages are mentioned in requirements.txt
+        
         """
 
-        pass
+        x = pd.DataFrame(x, columns=self.feature_list())
+        return model.predict(x)
 
     def predict_proba(self, x):
         """
@@ -51,5 +40,6 @@ class ModelPredictor(object):
         :param: None
         :return: A list of features
         """
-        return ['Black','Married','Boy','MomAge','MomSmoke','CigsPerDay','MomWtGain','Visit','MomEdLevel']
+        return ["Married", "Credit_score", "Age", "Total_assets", "Number_years", "Income", "Savings", "Ed_level"]
+    
 
