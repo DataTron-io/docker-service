@@ -27,22 +27,19 @@ def generate_credentials_for_internal_storage():
 
 def generate_credentials(connector):
     connector_details = json.loads(connector)
-    if "hdfs" in connector_details["connector"]["type_name"]:
-        if "credentials" not in connector_details["connector"]["configurations"]:
-            return {
-                'user': connector_details["connector"]["configurations"].get("user", "datatron")
-            }
-        creds = {
-            'keytab': connector_details["connector"]["configurations"]["credentials"]["keytab"],
-            'principal': connector_details["connector"]["configurations"]["credentials"]["principal"],
-            'xml_files': connector_details["connector"]["configurations"]["credentials"].get("xmls", ""),
-            'user': connector_details["connector"]["configurations"]["user"]
+    credentials = connector_details["connector"]["configurations"].get("credentials", None)
+    if credentials is None or "principal" not in credentials:
+        return {
+            'user': connector_details["connector"]["configurations"].get("user", "datatron")
         }
-        replace_host_path(creds)
-    else:
-        creds = connector_details["connector"]["configurations"]["credentials"]
+    creds = {
+        'keytab': connector_details["connector"]["configurations"]["credentials"]["keytab"],
+        'principal': connector_details["connector"]["configurations"]["credentials"]["principal"],
+        'xml_files': connector_details["connector"]["configurations"]["credentials"].get("xmls", ""),
+        'user': connector_details["connector"]["configurations"]["user"]
+    }
+    replace_host_path(creds)
     return creds
-
 
 def replace_host_path(credentials):
     if "keytab" in credentials:
