@@ -6,6 +6,7 @@ import pandas as pd
 from app.utils import hdfs_transfer as ht
 from app.ml_model import predictor
 from app.settings import settings
+from app.utils.file_transfer import generate_credentials_for_internal_storage, generate_credentials
 
 logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
 
@@ -50,7 +51,12 @@ class BatchPredictionJob:
         logging.info(
             'Getting the remote file for batch job from : {}, locally at: {}'.format(remote_path, local_prefix))
         local_filepath = self._create_local_path(remote_path, local_prefix)
-        ht.copy_file(remote_path, local_filepath)
+        if not settings.INPUT_CONNECTOR:
+            credentials = generate_credentials_for_internal_storage()
+        else:
+            credentials = generate_credentials(settings.INPUT_CONNECTOR)
+            logging.info("credentials to use: {}".format(credentials))
+        ht.copy_file(remote_path, local_filepath, 'download', credentials)
         return local_filepath
 
     def add_request_ids(self, dframe):
@@ -126,7 +132,12 @@ class BatchPredictionJob:
                 logging.info("Finished processing current frame in : {}"
                              .format(self.calculate_duration(chunk_process_start)))
 
-            ht.copy_file(local_output_filepath, self.remote_output_filepath)
+            if not settings.OUTPUT_CONNECTOR:
+                credentials = generate_credentials_for_internal_storage()
+            else:
+                credentials = generate_credentials(settings.INPUT_CONNECTOR)
+                logging.info("credentials to use: {}".format(credentials))
+            ht.copy_file(local_output_filepath, self.remote_output_filepath, 'upload', credentials)
 
             logging.info('Batch Processing succeeded for filename: {} in {} duration'
                          .format(input_filename, self.calculate_duration(file_process_start)))

@@ -1,4 +1,6 @@
 .gitignore
+.dockerignore
+Dockerfile
 venv/
 *.pyc
 .idea/
