@@ -2,6 +2,7 @@ import logging
 from app.settings import settings
 from py4j.java_gateway import JavaGateway
 
+
 '''
 credentials: {
         'keytab': Kerberos keytab,
@@ -12,6 +13,7 @@ credentials: {
 '''
 
 
+
 class Gateway:
     __instance = None
 
@@ -19,6 +21,7 @@ class Gateway:
         if Gateway.__instance is None:
             self.gateway = JavaGateway()
             self.gateway.launch_gateway(classpath=settings.JAVA_GATEWAY_JAR_LOCATION, die_on_exit=True, port=settings.JAVA_GATEWAY_PORT)
+
 
             logging.info('Successfully launched java gateway for classpath {} at port {}.'
                          .format(settings.JAVA_GATEWAY_JAR_LOCATION, settings.JAVA_GATEWAY_PORT))
@@ -67,6 +70,7 @@ class SecureClient:
     """
 
     def __init__(self, url, user, credentials):
+
         try:
             gateway_instance = Gateway.get_instance()
             configuration = gateway_instance.configuration
@@ -75,6 +79,8 @@ class SecureClient:
             if credentials:
                 Gateway.generate_ticket(url, credentials.get("principal"), credentials.get("keytab"),
                                         credentials.get("xml_files"))
+
+
                 self.fs = gateway_instance.filesystem.get(configuration)
             else:
                 self.fs = gateway_instance.filesystem.get(gateway_instance.uri(url), gateway_instance.configuration,
@@ -117,5 +123,4 @@ class SecureClient:
             logging.info('Exception in getting content for hdfs path {}: {}.'.format(hdfs_path, str(e)))
             if not strict:
                 return None
-
             raise

@@ -6,6 +6,8 @@ ARG GITHUB_ACCESS_TOKEN
 
 ENV APP_DIR=/root/docker-service
 
+ARG GITHUB_ACCESS_TOKEN
+
 COPY . ${APP_DIR}
 
 WORKDIR ${APP_DIR}
@@ -15,6 +17,7 @@ ENV PYTHONPATH "${PYTHONPATH}:${APP_DIR}"
 ENV DATATRON_ROOT_LOCATION "${APP_DIR}"
 
 RUN yum -y update && yum install -y yum-utils nmap vim && yum groupinstall -y development \
+
     && yum install -y  https://repo.ius.io/ius-release-el7.rpm \
     && yum install -y python36u python36u-pip python36u-devel \
     && yum install git \
@@ -29,5 +32,6 @@ RUN yum -y update && yum install -y yum-utils nmap vim && yum groupinstall -y de
     && cd ${APP_DIR}/app \
     && git clone -b master https://${GITHUB_ACCESS_TOKEN}@github.com/DataTron-io/governor/ \
     && yum autoremove git -y
+
 
 EXPOSE 80

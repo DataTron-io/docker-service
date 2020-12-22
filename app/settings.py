@@ -1,4 +1,5 @@
 from app.utils.settings import str_env, int_env, bool_env, json_env
+
 import os
 import json
 
@@ -34,12 +35,11 @@ class BaseConfig(object):
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
+
     DELIMITER = str_env('DELIMITER', '0x2c') # default is ','
-    DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'zk')
+    DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'k8s')
     INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
     OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
-    SHIVA_ZOOKEEPER_HOSTS = str_env('SHIVA_ZOOKEEPER_HOSTS',
-                                    '10.0.1.5:2181, 10.0.1.6:2181, 10.0.1.7:2181')
 
     DATATRON_INTERNAL_STORAGE_USER = str_env('DATATRON_INTERNAL_STORAGE_USER', 'datatron')
 
@@ -53,6 +53,12 @@ class BaseConfig(object):
     KEYTAB_LOCATION = str_env('KEYTAB_LOCATION')
     KERBEROS_USER = str_env('KERBEROS_USER')
     USE_WEBHDFS = bool_env('USE_WEBHDFS', True)
+
+    PREDICT_ENDPOINT = str_env('PREDICT_ENDPOINT', '/predict')
+    PROBA_ENDPOINT = str_env('PROBA_ENDPOINT', '')
+    APIPORT = str_env('PORT', '90')
+    SHIVA_ZOOKEEPER_HOSTS = str_env('SHIVA_ZOOKEEPER_HOSTS', 'datatron-zookeeper-svc:2181')
+
 
     JAVA_GATEWAY_JAR_LOCATION = os.path.dirname(os.path.abspath(__file__)) \
                                 + '/../java-gateway-1.0-SNAPSHOT-jar-with-dependencies.jar'
@@ -79,4 +85,3 @@ elif APPLICATION_ENV == 'staging':
     settings = StagingConfig()
 elif APPLICATION_ENV == 'production':
     settings = ProdConfig()
-
