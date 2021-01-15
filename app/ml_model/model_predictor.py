@@ -2,54 +2,42 @@ import json
 import logging
 import pickle
 import pandas as pd
+from app.settings import settings
+import requests
+#from datatron.common.discovery import DatatronDiscovery
 
 
 class ModelPredictor(object):
-    """
-    This class is modified by the user to upload the model into the Datatron platform.
-    """
+
     def __init__(self):
         pass
 
-    def predict(self, x):
-        """
-        Required for online and offline predictions
+    #def _get_service_discovery_client(self):
+        #dsd_discovery_client = DatatronDiscovery(discovery_type=settings.DISCOVERY_TYPE,
+                                                 #services_type='infrastructure',
+                                                 #hosts=settings.SHIVA_ZOOKEEPER_HOSTS,
+                                                 #caching=False)
+        #return dsd_discovery_client
 
-        :param: x : A list or list of list of input vector
-        :return: single prediction
+    def predict(self, json_data, proba=False):
+        #dsd_client = self._get_service_discovery_client()
+        #dictator_url = dsd_client.get_single_instance(service_path='dictator', pick_random=True)
+        #full_url = dictator_url + '/api/publishers/deployments/{}'.format(settings.DEPLOYMENT_ID)
+        #deployment_response = requests.get(url=full_url)
+        #dsd_client.stop()
+        #deploy_data = deployment_response.json()
+        #features = deploy_data['result']['model']['features']
 
-        Example (Copy and paste the 3 lines to test it out):
-        Step 1. Load the model into python. Model artifacts are stored in "models" folder
-        model = pickle.load(open("models/xgboost_birth_model.pkl", "rb"))
+        #validated_features = {}
+        #for feature in features:
+        #    if feature in json_data:
+        #        validated_features[feature] = json_data[feature]
 
-        Step 2. Prepare the data to be predicted. This needs to be modified based on how the data was sent in the
-        request
-        x= pd.DataFrame(x, columns = self.feature_list())
+        #logging.info('Validated Features: {}'.format(validated_features))
 
-        Step 3. Use the uploaded model to predict/ infer from the input data
-        return model.predict(x)
-
-        Note: Make sure all the needed packages are mentioned in requirements.txt
-        """
-
-        pass
-
-    def predict_proba(self, x):
-        """
-        This function is implemented if a probability is required instead of the class value for classification.
-
-        :param: x: A list or list of list of input vector
-        :return: A dict of predict probability of the model for
-         each feature in the features list
-        """
-        pass
-
-    def feature_list(self):
-        """
-        Required for online and offline predictions. This function binds the request data to the actual feature names.
-
-        :param: None
-        :return: A list of features
-        """
-        return ['Black','Married','Boy','MomAge','MomSmoke','CigsPerDay','MomWtGain','Visit','MomEdLevel']
-
+        endpoint = settings.PROBA_ENDPOINT if proba else settings.PREDICT_ENDPOINT
+        port = settings.APIPORT
+        if endpoint[0] != '/':
+            endpoint = '/' + endpoint
+        response = requests.post("http://localhost:" + port + endpoint, json=json_data)
+        return response

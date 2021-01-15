@@ -1,5 +1,7 @@
-from app.utils.settings import str_env, int_env, bool_env
+from app.utils.settings import str_env, int_env, bool_env, json_env
+
 import os
+import json
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -17,6 +19,8 @@ class BaseConfig(object):
     DATATRON_ROOT_LOCATION = str_env('DATATRON_ROOT_LOCATION', '/home/datatron')
     PUBLISHER_SLUG = str_env('PUBLISHER_SLUG', 'dt-publisher-sample')
     MODEL_LEARN_TYPE = str_env('MODEL_LEARN_TYPE', 'model_learn_type_sample')
+    METRIC_ARGS = json_env('METRIC_ARGS', '{}')
+    METRICS_DIR = str_env('METRICS_DIR', '/tmp/metrics')
     MODEL_NAME = str_env('MODEL_NAME', 'dnn_model')
     MODEL_VERSION = str_env('MODEL_VERSION', 'model_version_sample')
     MODEL_VERSION_SLUG = str_env('MODEL_VERSION_SLUG', 'model_version_slug_sample')
@@ -25,12 +29,15 @@ class BaseConfig(object):
     WORKSPACE_SLUG = str_env('WORKSPACE_SLUG', 'workspace_slug_sample')
     DEPLOYMENT_ID = str_env('DEPLOYMENT_ID', 'deployment_id_sample')
     BATCH_ID = str_env('BATCH_ID', 'batch_id_sample')
+    JOB_ID = str_env('JOB_ID', 'job_id_sample')
     REMOTE_INPUT_FILEPATH = str_env('REMOTE_INPUT_FILEPATH', '/home/datatron/shiva')
+    REMOTE_FEEDBACK_FILEPATH_LIST = json_env('FEEDBACK_FILEPATH_LIST', json.dumps(['/home/datatron/shiva']))
     REMOTE_OUTPUT_FILEPATH = str_env('REMOTE_OUTPUT_FILEPATH', '/home/datatron/shiva')
     LEARN_TYPE = str_env('LEARN_TYPE', 'regression')
     CHUNK_SIZE = str_env('CHUNK_SIZE', 5000)
-    DELIMITER = str_env('DELIMITER', ',')
 
+    DELIMITER = str_env('DELIMITER', '0x2c') # default is ','
+    DISCOVERY_TYPE = str_env('DISCOVERY_TYPE', 'k8s')
     INPUT_CONNECTOR = str_env('INPUT_CONNECTOR')
     OUTPUT_CONNECTOR = str_env('OUTPUT_CONNECTOR')
 
@@ -46,6 +53,12 @@ class BaseConfig(object):
     KEYTAB_LOCATION = str_env('KEYTAB_LOCATION')
     KERBEROS_USER = str_env('KERBEROS_USER')
     USE_WEBHDFS = bool_env('USE_WEBHDFS', True)
+
+    PREDICT_ENDPOINT = str_env('PREDICT_ENDPOINT', '/predict')
+    PROBA_ENDPOINT = str_env('PROBA_ENDPOINT', '')
+    APIPORT = str_env('PORT', '90')
+    SHIVA_ZOOKEEPER_HOSTS = str_env('SHIVA_ZOOKEEPER_HOSTS', 'datatron-zookeeper-svc:2181')
+
 
     JAVA_GATEWAY_JAR_LOCATION = os.path.dirname(os.path.abspath(__file__)) \
                                 + '/../java-gateway-1.0-SNAPSHOT-jar-with-dependencies.jar'
@@ -72,4 +85,3 @@ elif APPLICATION_ENV == 'staging':
     settings = StagingConfig()
 elif APPLICATION_ENV == 'production':
     settings = ProdConfig()
-
