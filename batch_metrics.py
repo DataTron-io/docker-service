@@ -1,7 +1,9 @@
 import os
+from os.path import join
 import uuid
 import time
 import json
+from pandas.core.reshape import merge
 import yaml
 import logging
 import argparse
@@ -15,17 +17,35 @@ from utils.retry_apis import _retry_call
 import requests
 from datatron.common.discovery import DatatronDiscovery
 from app.governor.datatron_metrics import MetricsManager
+from app.governor.datatron_bias import (mergeLabelCounts,
+            makeClassificationCountForCategoricalColumns, makeRegressionCountForCategoricalColumns, 
+            makeRegressionCountForContinuousColumns, makeClassificationCountForContinuousColumns
+    )
 
 logging.basicConfig(format=settings.DEFAULT_LOG_FORMAT, level=logging.INFO)
+
+class basicNumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, tuple):
+            return list(obj)
+        else:
+            return json.JSONEncoder.default(self, obj)
 
 class BatchMetricsJob:
 
     def __init__(self):
-        logging.info("Received batch metrics job for batch-id: {} with metric-args: {}".format(settings.BATCH_ID, settings.METRIC_ARGS))
+        logging.info("Received batch metrics job for batch-id: {} with metric-args: {} and bias-args: {}".format(settings.BATCH_ID, settings.METRIC_ARGS, settings.BIAS_ARGS))
         self.batch_id = settings.BATCH_ID
         self.job_id = settings.JOB_ID
         self.workspace_slug = settings.WORKSPACE_SLUG
         self.metric_args = settings.METRIC_ARGS
+        self.bias_args = settings.BIAS_ARGS
         self.delimiter = chr(int(settings.DELIMITER, 16))
         self.prediction_filepath = settings.REMOTE_INPUT_FILEPATH
         self.feedback_filepaths = settings.REMOTE_FEEDBACK_FILEPATH_LIST
@@ -134,23 +154,82 @@ class BatchMetricsJob:
         _chunksize = self.DEFAULT_CHUNK if (bytes_per_row * self.DEFAULT_CHUNK) < self.ALLOWED_MAX_BYTES else optimal_rows_for_mem
         logging.debug('Estimated optimal chunksize is {}'.format(str(_chunksize)))
         return _chunksize
+        
 
-    def save_metrics(self, file_name, metric_vals, job_id):
+    def save_batch_info(self, file_name, metric_vals, bias_counts, job_id):
         file_path = os.path.join(self.metrics_intermediate_dir, file_name)
+        batch_info = {"model_metrics": metric_vals, "bias_counts": bias_counts}
+        # logging.info("Model metrics and bias counts are: {}".format(batch_info))
         try:
             with open(file_path, "w") as fopen:
-                json.dump(metric_vals, fopen)
+                json.dump(batch_info, fopen, cls=basicNumpyEncoder)
         except FileNotFoundError as e:
             logging.error(f"Metrics for matadata calculated for job-id {job_id} could not be saved due to file {file_name} not being found.")
 
-    # @log_time_taken(f"Calculating batch metrics for prediction file: {self.prediction_filepath} for job-id: {self.job_id}")
+
+    @staticmethod
+    def calculate_bias_counts(df, bias_config, output_config):
+        bias_counts = {"scoring_counts": {}, "feedback_counts":{}}
+        if bias_config != {}:
+            categorical_bias_features = (
+                [feature for feature, feature_config in bias_config.items() if feature_config['feature_type'] == 'categorical']
+            )
+            continuous_bias_features = ( 
+                {feature: feature_config['feature_bins'] for feature, feature_config in bias_config.items() if feature_config['feature_type'] == 'continuous'}
+            )
+            if output_config["type"] == 'continuous':
+                output_range = output_config["range"]
+                scoring_categorical_count = makeRegressionCountForCategoricalColumns(
+                    df, "prediction", output_range, settings.BIAS_REGRESSION_BINS, categorical_bias_features
+                )
+                scoring_continuous_count = makeRegressionCountForContinuousColumns(
+                    df, "prediction", output_range, settings.BIAS_REGRESSION_BINS, continuous_bias_features
+                )
+
+                absolute_error_range = [0, 100]
+                df["absolute_error"] = np.abs(df["actual_value"] - df["prediction"])
+
+                feedback_categorical_count = makeRegressionCountForCategoricalColumns(
+                    df, "absolute_error", absolute_error_range, settings.BIAS_REGRESSION_BINS, categorical_bias_features
+                )
+                feedback_continuous_count = makeRegressionCountForContinuousColumns(
+                    df, "absolute_error", absolute_error_range, settings.BIAS_REGRESSION_BINS, continuous_bias_features
+                )
+
+                scoring_counts = mergeLabelCounts(scoring_categorical_count, scoring_continuous_count)
+                feedback_counts = mergeLabelCounts(feedback_categorical_count, feedback_continuous_count)
+                bias_counts = {"scoring_counts": scoring_counts, "feedback_counts": feedback_counts}
+            else:
+                scoring_categorical_count = makeClassificationCountForCategoricalColumns(
+                    df, "prediction", categorical_bias_features
+                )
+                scoring_continuous_count = makeClassificationCountForContinuousColumns(
+                    df, "prediction", continuous_bias_features
+                )
+
+                feedback_categorical_count = makeClassificationCountForCategoricalColumns(
+                    df, "prediction", categorical_bias_features, "actual_value"
+                )
+                feedback_continuous_count = makeClassificationCountForContinuousColumns(
+                    df, "prediction", continuous_bias_features, "actual_value"
+                )
+
+                scoring_counts = mergeLabelCounts(scoring_categorical_count, scoring_continuous_count)
+                feedback_counts = mergeLabelCounts(feedback_categorical_count, feedback_continuous_count)
+                bias_counts = {"scoring_counts": scoring_counts, "feedback_counts": feedback_counts}
+        return bias_counts
+
     def process_batch(self):
         chunksize = 1e6 # Make this a variable in the settings or determine dynamically
+        bias_counts = {"scoring_counts": {}, "feedback_counts":{}}
         if self.metric_args == {}:
             logging.info("No metric were calculated as metric arguments were not provided.")
             return
+        if self.bias_args == {}:
+            logging.info("No bias configuration was provided. No bias is being calculated.")
         try:
             self.metrics_manager = MetricsManager(self.metric_args)
+            bias_output_config = self.bias_args.pop("output_config")
             running_status_meta = {'status_code': 202, 'status_msg': 'BatchScoringLiteMetricsInProgress'}
             try:
                 self._update_status_to_dictator(status='RUNNING', status_meta=running_status_meta)
@@ -172,14 +251,17 @@ class BatchMetricsJob:
                         try:
                             joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "feedback_id", how="inner")
                             self.metrics_manager.batch_update(np.array(joined_df["actual_value"]), np.array(joined_df["prediction"]))
+                            if self.bias_args != {}:
+                                current_bias_count = self.calculate_bias_counts(joined_df, self.bias_args, bias_output_config)
+                                bias_counts = mergeLabelCounts(bias_counts, current_bias_count)
                         except KeyError as e:
                             logging.error(f"Could not join datatron_id column in either the prediction file: {local_prediction_filepath} or feedback file: {local_feedback_filepath} due to error: {str(e)}.")
                     self.delete_local_file(local_feedback_filepath)
                     logging.debug("Finished calculating metrics on feedback_file: {} in {} seconds".format(feedback_filepath, self.calculate_duration(cur_feed_time)))
-            metrics_file = "{}.json".format(self.batch_id)
+            batch_info_filename = "{}.json".format(self.batch_id)
             metric_values = self.metrics_manager.fetch_metric_values()
             logging.debug("Metric values for batch {} are {}".format(self.batch_id, metric_values))
-            self.save_metrics(metrics_file, metric_values, self.job_id)
+            self.save_batch_info(batch_info_filename, metric_values, bias_counts, self.job_id)
             batch_status = "SUCCESS"
             status_msg = "BatchMetricsScoringLiteSuccess"
             status_code = 200
