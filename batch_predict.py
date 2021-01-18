@@ -103,14 +103,14 @@ class BatchPredictionJob:
                 feature_list = predictor.feature_list()
                 x_list = each_chunk[feature_list].values
                 output = predictor.predict(x_list)
-                predict_df = pd.DataFrame(output, columns=['prediction'])
+                predict_df = pd.DataFrame(output, columns=['outputs'])
                 predict_df.index = each_chunk.index.values
 
                 logging.info('Model: {} finished the prediction for the current frame in: {}'
                              .format(model_key, self.calculate_duration(model_predict_start)))
 
                 predict_merge_start = time.time()
-                # predict_df = predict_df.add_prefix(model_key + '__')
+                predict_df = predict_df.add_prefix(model_key + '__')
                 each_chunk = each_chunk.merge(predict_df, how='outer', left_index=True, right_index=True)
 
                 logging.info('Finished merging the prediction result with existing base frame in: {}'
