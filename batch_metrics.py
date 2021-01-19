@@ -171,7 +171,9 @@ class BatchMetricsJob:
                                                     delimiter=self.delimiter):
                         try:
                             joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "datatron_request_id", how="inner", suffixes=[None,'_y'])
-                            self.metrics_manager.batch_update(np.array(joined_df["actual_value"]), np.array(joined_df["prediction"]))
+                            prediction_column = joined_df.columns[ joined_df.columns.str.endswith('outputs') | joined_df.columns.str.endswith('classes') ][0]
+                            feedback_column = joined_df.columns[joined_df.columns.str.endswith('actual_value')][0]
+                            self.metrics_manager.batch_update(np.array(joined_df[feedback_column]), np.array(joined_df[prediction_column]))
                         except KeyError as e:
                             logging.error(f"Could not join datatron_id column in either the prediction file: {local_prediction_filepath} or feedback file: {local_feedback_filepath} due to error: {str(e)}.")
                     self.delete_local_file(local_feedback_filepath)
