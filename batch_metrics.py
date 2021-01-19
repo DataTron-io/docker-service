@@ -170,8 +170,20 @@ class BatchMetricsJob:
                                                     chunksize=chunksize,
                                                     delimiter=self.delimiter):
                         try:
-                            joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "feedback_id", how="inner")
-                            self.metrics_manager.batch_update(np.array(joined_df["actual_value"]), np.array(joined_df["prediction"]))
+                            joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "datatron_request_id", how="inner", suffixes=[None,'_y'])
+                            prediction_column = joined_df.columns[joined_df.columns.str.endswith('outputs')]
+                            feedback_column = joined_df.columns[joined_df.columns.str.endswith('actual_value')]
+                            if (len(prediction_column) > 0) and (len(feedback_column) > 0):
+                                prediction_column = prediction_column[0]
+                                feedback_column = feedback_column[0]
+                            else:
+                                if len(prediction_column) == 0:
+                                    logging.error("Prediction file {} doesn't have a column with suffix 'outputs'".format(local_prediction_filepath))
+                                    raise Exception("Prediction file doesn't contain correct column names. Prediction column name must end with 'outputs'")
+                                if len(feedback_column) == 0:
+                                    logging.error("Feedback file {} doesn't have a column with suffix 'actual_value'".format(local_prediction_filepath))
+                                    raise Exception("Feedback file doesn't contain correct column names. Feedback column name must end with 'actual_value'")
+                            self.metrics_manager.batch_update(np.array(joined_df[feedback_column]), np.array(joined_df[prediction_column]))
                         except KeyError as e:
                             logging.error(f"Could not join datatron_id column in either the prediction file: {local_prediction_filepath} or feedback file: {local_feedback_filepath} due to error: {str(e)}.")
                     self.delete_local_file(local_feedback_filepath)
