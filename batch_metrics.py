@@ -170,7 +170,11 @@ class BatchMetricsJob:
                                                     chunksize=chunksize,
                                                     delimiter=self.delimiter):
                         try:
+<<<<<<< HEAD
                             joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "datatron_request_id", how="inner", suffixes=['','_y'])
+=======
+                            joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "datatron_request_id", how="inner", suffixes=[None,'_y'])
+>>>>>>> api-integration
                             prediction_column = joined_df.columns[joined_df.columns.str.endswith('outputs')]
                             feedback_column = joined_df.columns[joined_df.columns.str.endswith('actual_value')]
                             if (len(prediction_column) > 0) and (len(feedback_column) > 0):
