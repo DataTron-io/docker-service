@@ -229,7 +229,6 @@ class BatchMetricsJob:
             logging.info("No bias configuration was provided. No bias is being calculated.")
         try:
             self.metrics_manager = MetricsManager(self.metric_args)
-            bias_output_config = self.bias_args.pop("output_config")
             running_status_meta = {'status_code': 202, 'status_msg': 'BatchScoringLiteMetricsInProgress'}
             try:
                 self._update_status_to_dictator(status='RUNNING', status_meta=running_status_meta)
@@ -252,7 +251,9 @@ class BatchMetricsJob:
                             joined_df = pd.merge(prediction_chunk, feedback_chunk, left_on = "datatron_request_id", right_on = "feedback_id", how="inner")
                             self.metrics_manager.batch_update(np.array(joined_df["actual_value"]), np.array(joined_df["prediction"]))
                             if self.bias_args != {}:
-                                current_bias_count = self.calculate_bias_counts(joined_df, self.bias_args, bias_output_config)
+                                bias_output_name, column_configs = self.bias_args.popitem()
+                                bias_output_config = column_configs.pop("output_config")
+                                current_bias_count = self.calculate_bias_counts(joined_df, column_configs["features"], bias_output_config)
                                 bias_counts = mergeLabelCounts(bias_counts, current_bias_count)
                         except KeyError as e:
                             logging.error(f"Could not join datatron_id column in either the prediction file: {local_prediction_filepath} or feedback file: {local_feedback_filepath} due to error: {str(e)}.")
